@@ -1,4 +1,4 @@
-## Interface: 30403
+## Interface: 57807
 ## Title: DgrZs
 ## Notes: 这是一款监控游戏队伍状态的插件
 ## Author: 不爱
