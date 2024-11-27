@@ -134,7 +134,7 @@ local function hasBuff(bufflist, buffName)  --检查是否存在指定buff
     end  
     return false  
 end
-local function JCdydebuff(unit, playerProfession)   -- 检查队友身上的debuff 中毒 疾病 魔法 诅咒
+local function JCdydebuff(unit)   -- 检查队友身上的debuff 中毒 疾病 魔法 诅咒
     for n = 1, 5 do
         local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId = UnitDebuff(unit, n)
         if name then
@@ -540,7 +540,7 @@ local function MS()--牧师
             local zishenBuff = tempSkills["心灵之火"] and jshp and jn and not hasBuff(bufflist, "心灵之火")
             if zishenBuff then
                 SetSquareColor(1) -- 当前对象
-                SetSquareColor1(7) -- 神圣之灵
+                SetSquareColor1(7) -- 心灵之火
             end
         end
     end
@@ -557,7 +557,7 @@ local function ND()--小德
             local numMembers = GetNumGroupMembers()--队员数量
             for n = 1, numMembers do
                 local unit = (n == 1) and "player" or "party" .. (n - 1)
-                local debuff = JCdydebuff(unit, "德鲁伊")
+                local debuff = JCdydebuff(unit)
                 local jn1 = CD("消毒术") -- 冷却完毕
                 local jn2 = CD("解除诅咒") -- 冷却完毕
                 local dxjl = JL(unit)
@@ -590,7 +590,7 @@ local function ND()--小德
             local unit = (dqdx == 1) and "player" or "party" .. (dqdx - 1)
             local sf = isPlayerCasting("player") -- 是否在施法
             local dxjl = JL(unit) -- 目标在30码以内
-    
+
             if dxjl <= 30 and not sf then
                 -- 读取所有技能CD是否完毕
                 local jn1 = CD("治疗之触")
@@ -604,25 +604,27 @@ local function ND()--小德
                 local jshp = UnitHealth(unit) / UnitHealthMax(unit) * 100 --当前对象血量
                 local zsmp = UnitPower("player") / UnitPowerMax("player") * 100 -- 自身蓝量百分比
                 local zshp = UnitHealth("player") / UnitHealthMax("player") * 100 -- 自身血量百分比
-                if tempSkills["激活"] and jsmp <= 10 and zshp > 0 and jshp > 0 and jn4 then
+                print(jshp)
+                if tempSkills["激活"] and jsmp <= 10 and zshp > 0 and jshp > 0 and jn5 then
+                    SetSquareColor(dqdx) -- 当前对象
+                    SetSquareColor1(5) -- 激活
+                    return
+                elseif tempSkills["宁静"] and  zshp > 0 and jn4 and cxjs>=3 then
                     SetSquareColor(dqdx) -- 当前对象
                     SetSquareColor1(4) -- 宁静
                     return
-                elseif tempSkills["回春术"] and jshp <= 90 and jshp > 0 and jn2 and cxjs>=3 then
+                elseif tempSkills["回春术"] and  zshp > 0 and jshp <= 90 and jshp > 0 and jn2 then
                     SetSquareColor(dqdx) -- 当前对象
                     SetSquareColor1(2) -- 回春术
                     return
-                elseif tempSkills["治疗之触"] and jshp <= 60 and jshp > 0 and jn1 and cxjs>=3 then
+                elseif tempSkills["治疗之触"] and  zshp > 0 and jshp <= 60 and jshp > 0 and jn1 then
                     SetSquareColor(dqdx) -- 当前对象
                     SetSquareColor1(1) -- 治疗之触
                     return
-                elseif tempSkills["愈合"] and jshp <= 60 and jshp > 0 and jn3 and cxjs>=3 then
+                elseif tempSkills["愈合"] and  zshp > 0 and jshp <= 60 and jshp > 0 and jn3 then
                     SetSquareColor(dqdx) -- 当前对象
                     SetSquareColor1(1) -- 愈合
                     return
-
-
-                    --这是新的版本 
                 end
             end
         end
@@ -636,65 +638,59 @@ local function ND()--小德
                 local unit = (n == 1) and "player" or "party" .. (n - 1)
                 local jshp = UnitHealth(unit) / UnitHealthMax(unit) * 100 -- 直接计算百分比
                 -- 读取所有技能CD是否完毕
-                local jn1 = CD("真言术：韧")
-                local jn2 = CD("神圣之灵")
+                local jn1 = CD("野性印记")
+                local jn2 = CD("荆棘术")
                 local dxjl = JL(unit) -- 目标在30码以内
 
                 local bufflist = buff(unit)
-                local hasStrengthBuff = tempSkills["真言术.韧"] and jshp > 0 and jn1 and dxjl <= 30 and not hasBuff(bufflist, "真言术：韧")
-                local hasWisdomBuff = tempSkills["神圣之灵"] and jshp > 0 and jn2 and dxjl <= 30 and not hasBuff(bufflist, "神圣之灵")
+                local hasStrengthBuff = tempSkills["野性印记"] and jshp > 0 and jn1 and dxjl <= 30 and not hasBuff(bufflist, "野性印记")
+                local hasWisdomBuff = tempSkills["荆棘术"] and jshp > 0 and jn2 and dxjl <= 30 and not hasBuff(bufflist, "荆棘术")
 
                 if hasStrengthBuff then
                     SetSquareColor(n) -- 当前对象
-                    SetSquareColor1(8) -- 真言术韧
-                    local macroName = "真言术：韧"
+                    SetSquareColor1(7) -- 野性印记
+                    local macroName = "野性印记"
                     local macroIndex = GetMacroIndexByName(macroName)
                     if macroIndex > 0 then  -- 确保宏存在
                         local Level = UnitLevel(unit)
                         if Level <= 10 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：韧(等级 1)")
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 野性印记(等级 1)")
                         elseif Level <= 20 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：韧(等级 2)")
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 野性印记(等级 2)")
                         elseif Level <= 30 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：韧(等级 3)")
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 野性印记(等级 3)")
                         elseif Level <= 40 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：韧(等级 4)")
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 野性印记(等级 4)")
                         elseif Level <= 50 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：韧(等级 5)")
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 野性印记(等级 5)")
                         elseif Level <= 60 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：韧(等级 6)")
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 野性印记(等级 6)")
                         end
                     end
                     return
                 elseif hasWisdomBuff then
                     SetSquareColor(n) -- 当前对象
-                    SetSquareColor1(10) -- 神圣之灵
-                    local macroName = "神圣之灵"
+                    SetSquareColor1(6) -- 荆棘术
+                    local macroName = "荆棘术"
                     local macroIndex = GetMacroIndexByName(macroName)
                     if macroIndex > 0 then  -- 确保宏存在
                         local Level = UnitLevel(unit)
-                        if Level <= 20 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 神圣之灵(等级 1)")
+                        if Level <= 10 then
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 荆棘术(等级 1)")
+                        elseif Level <= 20 then
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 荆棘术(等级 2)")
                         elseif Level <= 30 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 神圣之灵(等级 2)")
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 荆棘术(等级 3)")
                         elseif Level <= 40 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 神圣之灵(等级 3)")
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 荆棘术(等级 4)")
                         elseif Level <= 50 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 神圣之灵(等级 4)")
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 荆棘术(等级 5)")
                         elseif Level <= 60 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 神圣之灵(等级 5)")
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 荆棘术(等级 6)")
                         end
                     end
                     return
                 end
-            end
-            local bufflist = buff("player")
-            local jn = CD("心灵之火")
-            local jshp = UnitHealth("player") / UnitHealthMax("player") * 100 -- 直接计算百分比
-            local zishenBuff = tempSkills["心灵之火"] and jshp and jn and not hasBuff(bufflist, "心灵之火")
-            if zishenBuff then
-                SetSquareColor(1) -- 当前对象
-                SetSquareColor1(7) -- 神圣之灵
             end
         end
     end
@@ -715,6 +711,8 @@ DgrzsFrame:SetScript("OnUpdate", function ()
             NQ ()
         elseif playerProfession=="牧师" then
             MS ()
+        elseif playerProfession=="德鲁伊" then
+            ND ()
         end
     end
 end)
