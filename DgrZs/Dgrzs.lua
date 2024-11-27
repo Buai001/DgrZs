@@ -604,7 +604,6 @@ local function ND()--小德
                 local jshp = UnitHealth(unit) / UnitHealthMax(unit) * 100 --当前对象血量
                 local zsmp = UnitPower("player") / UnitPowerMax("player") * 100 -- 自身蓝量百分比
                 local zshp = UnitHealth("player") / UnitHealthMax("player") * 100 -- 自身血量百分比
-                print(jshp)
                 if tempSkills["激活"] and jsmp <= 10 and zshp > 0 and jshp > 0 and jn5 then
                     SetSquareColor(dqdx) -- 当前对象
                     SetSquareColor1(5) -- 激活
