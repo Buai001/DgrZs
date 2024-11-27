@@ -613,7 +613,7 @@ local function ND()--小德
                     SetSquareColor(dqdx) -- 当前对象
                     SetSquareColor1(4) -- 宁静
                     return
-                elseif tempSkills["回春术"] and  zshp > 0 and jshp <= 90 and jshp > 0 and jn2 then
+                elseif tempSkills["回春术"] and  zshp > 0 and jshp <= 90 and jshp > 0 and jn2 and hasBuff(bufflist,"回春术")==false then
                     SetSquareColor(dqdx) -- 当前对象
                     SetSquareColor1(2) -- 回春术
                     return
@@ -621,7 +621,7 @@ local function ND()--小德
                     SetSquareColor(dqdx) -- 当前对象
                     SetSquareColor1(1) -- 治疗之触
                     return
-                elseif tempSkills["愈合"] and  zshp > 0 and jshp <= 60 and jshp > 0 and jn3 then
+                elseif tempSkills["愈合"] and  zshp > 0 and jshp <= 60 and jshp > 0 and jn3 and hasBuff(bufflist,"愈合")==false then
                     SetSquareColor(dqdx) -- 当前对象
                     SetSquareColor1(3) -- 愈合
                     return
