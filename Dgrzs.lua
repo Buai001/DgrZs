@@ -620,6 +620,9 @@ local function ND()--小德
                     SetSquareColor(dqdx) -- 当前对象
                     SetSquareColor1(1) -- 愈合
                     return
+
+
+                    --这是新的版本 
                 end
             end
         end
