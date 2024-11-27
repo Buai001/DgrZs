@@ -623,7 +623,7 @@ local function ND()--小德
                     return
                 elseif tempSkills["愈合"] and  zshp > 0 and jshp <= 60 and jshp > 0 and jn3 then
                     SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(1) -- 愈合
+                    SetSquareColor1(3) -- 愈合
                     return
                 end
             end

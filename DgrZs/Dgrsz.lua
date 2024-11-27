@@ -12,7 +12,7 @@ background:SetColorTexture(0, 0, 0, 0.8)  -- 设置背景颜色为黑色，透�
 -- 添加标题
 local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 title:SetPoint("TOP", 0, -10)
-title:SetText("DGR一键助手")
+title:SetText("DGR助手")
 
 -- 创建关闭按钮
 local closeButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
