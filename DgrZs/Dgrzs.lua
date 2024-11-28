@@ -747,11 +747,11 @@ local function NS() -- 奶萨
 
                 if debuff == 1 and jn1 and dxjl <= 30 then
                     SetSquareColor(n)
-                    SetSquareColor1(8) -- 消毒术
+                    SetSquareColor1(6) -- 消毒术
                     return -- 找到需要驱散的目标后直接返回
                 elseif debuff == 2 and jn2 and dxjl <= 30 then
                     SetSquareColor(n)
-                    SetSquareColor1(9) -- 祛病术
+                    SetSquareColor1(7) -- 祛病术
                     return -- 找到需要驱散的目标后直接返回
                 end
             end
