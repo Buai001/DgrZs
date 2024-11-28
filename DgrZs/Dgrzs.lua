@@ -1,22 +1,19 @@
 -- 创建主框架
 local DgrzsFrame = CreateFrame("Frame", "DgrzsFrame", UIParent)
-DgrzsFrame:SetSize(26, 14)  -- 设置框架大小
+DgrzsFrame:SetSize(38, 14)  -- 设置框架大小
 DgrzsFrame:SetPoint("TOPLEFT", 0, 0)  -- 设置框架位置为左上角
-
 -- 添加背景
 local background = DgrzsFrame:CreateTexture(nil, "BACKGROUND")
 background:SetAllPoints(DgrzsFrame)
 background:SetColorTexture(0, 0, 0, 0.5)  -- 设置背景颜色为黑色，透明度为0.5
 
--- 定义8个颜色 队友1-5
+-- 定义6个颜色 队友1-5
 local colors = {
     {1, 0, 0, 1},    -- 红色
     {1, 0.5, 0, 1},  -- 橙色
     {1, 1, 0, 1},    -- 黄色
     {0, 1, 0, 1},    -- 绿色
     {0, 1, 1, 1},    -- 青色
-    {0, 0, 1, 1},    -- 蓝色--队长
-    {0.5, 0, 1, 1},  -- 紫色--需要跟随
 	{0, 0, 0, 0}, -- 透明
 }
 
@@ -42,7 +39,12 @@ local colors1 = {
     {0.25, 1, 0.25, 1}, -- 深绿色
 	{0, 0, 0, 0}, -- 透明
 }
-
+-- 定义2个颜色 跟随或者不跟随
+local colors2 = {
+    {1, 0, 0, 1},    -- 红色
+    {0, 1, 0, 1},    -- 绿色
+	{0, 0, 0, 0}, -- 透明
+}
 -- 创建10x10的纹理
 local squareTexture = DgrzsFrame:CreateTexture(nil, "OVERLAY")
 squareTexture:SetSize(10, 10)  -- 设置纹理大小为10x10
@@ -52,6 +54,11 @@ squareTexture:SetPoint("TOPLEFT", DgrzsFrame, "TOPLEFT", 2, -2)  -- 将纹理放
 local squareTexture1 = DgrzsFrame:CreateTexture(nil, "OVERLAY")
 squareTexture1:SetSize(10, 10)  -- 设置纹理大小为10x10
 squareTexture1:SetPoint("TOPLEFT", DgrzsFrame, "TOPLEFT", 14, -2)  -- 将纹理放置在框架中心
+
+-- 创建第三个10x10的纹理
+local squareTexture2 = DgrzsFrame:CreateTexture(nil, "OVERLAY")
+squareTexture2:SetSize(10, 10)  -- 设置纹理大小为10x10
+squareTexture2:SetPoint("TOPLEFT", DgrzsFrame, "TOPLEFT", 26, -2)  -- 将纹理放置在框架中心
 
 -- 切换颜色的函数
 local function SetSquareColor(index)
@@ -70,7 +77,14 @@ local function SetSquareColor1(index)
     -- 设置纹理颜色为指定颜色
     squareTexture1:SetColorTexture(r, g, b, a)  -- 设置当前颜色为不透明
 end
+-- 切换颜色的函数
+local function SetSquareColor2(index)
+    -- 获取颜色
+    local r, g, b, a = unpack(colors2[index])
 
+    -- 设置纹理颜色为指定颜色
+    squareTexture2:SetColorTexture(r, g, b, a)  -- 设置当前颜色为不透明
+end
 -- 创建命令来显示框架
 SLASH_DGRZS1 = "/dgrzs"
 SlashCmdList["DGRZS"] = function(msg)
@@ -191,35 +205,46 @@ local function Isparty1InCombat()--判断是否战斗状态
         return false
     end
 end
-local function Gensui() -- 判断是否跟随
+local function Gensui(gsjl) -- 判断是否跟随
     if UnitExists("party1") then
         local distance = JL("party1")
-        if distance >= 10 and distance <= 30 then
-            return true
-        elseif distance > 30 or distance < 10 then
-            return false
+        local yidong = GetUnitSpeed("player") > 0 and not IsMounted()
+
+        -- 检查距离和移动状态
+        if (distance > 30 or distance < gsjl) and yidong then
+            SetSquareColor2(2)
+        elseif distance >= gsjl and distance <= 30 and not yidong then
+            SetSquareColor2(1)
+        else
+            SetSquareColor2(3)
         end
     else
-        return false
+        SetSquareColor2(3)
     end
 end
 local function JCch() -- 检查是否需要吃喝
-    local player = "Player"
+    local player = "player" -- 注意这里应该是小写的 "player"
     local jshp = UnitHealth(player) / UnitHealthMax(player) * 100 -- 血量百分比
     local jsmp = UnitPower(player) / UnitPowerMax(player) * 100 -- 蓝量百分比
     local bufflist = buff(player)
+
     if jshp <= 30 and jsmp <= 30 and not hasBuff(bufflist, "饮水") and not hasBuff(bufflist, "喝水") and not hasBuff(bufflist, "进食") then
         SetSquareColor(1)
         SetSquareColor1(18) -- 同时需要吃喝
-        return
+        SetSquareColor2(3)
+        return true
     elseif jsmp <= 30 and (not hasBuff(bufflist, "饮水") and not hasBuff(bufflist, "喝水")) then
         SetSquareColor(1)
         SetSquareColor1(17) -- 只需要喝
-        return
+        SetSquareColor2(3)
+        return true
     elseif jshp <= 30 and not hasBuff(bufflist, "进食") then
         SetSquareColor(1)
         SetSquareColor1(16) -- 只需要吃
-        return
+        SetSquareColor2(3)
+        return true
+    else
+        return false
     end
 end
 local function SendWhisperToparty1(message)--给队长目标发送悄悄话
@@ -235,12 +260,13 @@ local function SendWhisperToparty1(message)--给队长目标发送悄悄话
     end
 end
 local function NQ()--奶骑
-    SetSquareColor(8) -- 当前对象
+    SetSquareColor(6) -- 当前对象
     SetSquareColor1(19)
     local zdhp = 100 -- 假设最大血量为100
     local dqdx = 1 -- 默认值
     if Isparty1InCombat() and IsInGroup() then --判断是否战斗中
-            --队伍内 --对全队进行治疗
+        Gensui(20)
+        --队伍内 --对全队进行治疗
         local numMembers = GetNumGroupMembers()--队员数量
         for n = 1, numMembers do
             local unit = (n == 1) and "player" or "party" .. (n - 1)
@@ -307,9 +333,11 @@ local function NQ()--奶骑
             end
         end
     else
-        JCch()--检查是否需要吃喝
         --脱战
         if IsInGroup() then--判断是否在队伍
+            if not JCch() then--检查是否需要吃喝
+                Gensui(5)
+            end
             --队伍内 --对全队检查buff
             local numMembers = GetNumGroupMembers()--队员数量
             for n = 1, numMembers do
@@ -344,13 +372,14 @@ local function NQ()--奶骑
     end
 end
 local function MS()--牧师
-    SetSquareColor(8) -- 当前对象
+    SetSquareColor(6) -- 当前对象
     SetSquareColor1(19)
     local zdhp = 100 -- 假设最大血量为100
     local dqdx = 1 -- 默认值
     if Isparty1InCombat() then --判断是否战斗中
         --战斗中
         if IsInGroup() then--判断是否在队伍
+            Gensui(20)
             --队伍内 --对全队进行治疗
             local numMembers = GetNumGroupMembers()--队员数量
             for n = 1, numMembers do
@@ -473,9 +502,10 @@ local function MS()--牧师
             end
         end
     else
-        JCch()--检查是否需要吃喝
-        --脱战
         if IsInGroup() then--判断是否在队伍
+            if not JCch() then--检查是否需要吃喝
+                Gensui(5)
+            end
             --队伍内 --对全队检查buff
             local numMembers = GetNumGroupMembers()--队员数量
             for n = 1, numMembers do
@@ -546,13 +576,14 @@ local function MS()--牧师
     end
 end
 local function ND()--小德
-    SetSquareColor(8) -- 当前对象
+    SetSquareColor(6) -- 当前对象
     SetSquareColor1(19)
     local zdhp = 100 -- 假设最大血量为100
     local dqdx = 1 -- 默认值
     if Isparty1InCombat() then --判断是否战斗中
         --战斗中
         if IsInGroup() then--判断是否在队伍
+            Gensui(20)
             --队伍内 --对全队进行治疗
             local numMembers = GetNumGroupMembers()--队员数量
             for n = 1, numMembers do
@@ -628,9 +659,11 @@ local function ND()--小德
             end
         end
     else
-        JCch()--检查是否需要吃喝
         --脱战
         if IsInGroup() then--判断是否在队伍
+            if not JCch() then--检查是否需要吃喝
+                Gensui(5)
+            end
             --队伍内 --对全队检查buff
             local numMembers = GetNumGroupMembers()--队员数量
             for n = 1, numMembers do
@@ -696,16 +729,13 @@ local function ND()--小德
 end
 DgrzsFrame:SetScript("OnUpdate", function ()
 	--角色职业
-	local playerProfession=GetPlayerInfoByGUID(UnitGUID("player"))
-    if Gensui() then--检测是否需要跟随
-        SetSquareColor(7)
-        SetSquareColor1(19)
-        return
-    elseif UnitIsAFK("player") then--检测是否暂离
+    if UnitIsAFK("player") then--检测是否暂离
         SetSquareColor(1)
         SetSquareColor1(15)
         return
     else
+        local playerProfession=GetPlayerInfoByGUID(UnitGUID("player"))--获取职业
+
         if playerProfession=="圣骑士" then
             NQ ()
         elseif playerProfession=="牧师" then
