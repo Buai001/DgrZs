@@ -44,7 +44,7 @@ SlashCmdList["RELOADUI"] = ReloadUICommand
 local classDropdown = CreateFrame("Frame", "MyAddonClassDropdown", frame, "UIDropDownMenuTemplate")
 classDropdown:SetPoint("TOPLEFT", 10, -40)
 
-local classes = {"奶骑", "牧师","德鲁伊"}
+local classes = {"奶骑", "牧师","德鲁伊","奶萨"}
 local skillsByClass = {
     ["奶骑"] = {
         {"圣光术", "Interface\\Icons\\Spell_Holy_HolyBolt"},
@@ -81,6 +81,15 @@ local skillsByClass = {
         {"野性印记", "Interface\\Icons\\spell_nature_regeneration"},
         {"消毒术", "Interface\\Icons\\spell_nature_nullifypoison"},
         {"解除诅咒", "Interface\\Icons\\spell_holy_removecurse"},
+    },
+    ["奶萨"] = {
+        {"治疗波", "Interface\\Icons\\spell_nature_magicimmunity"},
+        {"次级治疗波", "Interface\\Icons\\spell_nature_healingwavelesser"},
+        {"治疗链", "Interface\\Icons\\spell_nature_healingwavegreater"},
+        {"治疗之泉图腾", "Interface\\Icons\\inv_spear_04"},
+        {"石肤图腾", "Interface\\Icons\\spell_nature_stoneskintotem"},
+        {"消毒术", "Interface\\Icons\\spell_nature_nullifypoison"},
+        {"祛病术", "Interface\\Icons\\spell_holy_nullifydisease"},
     },
 }
 
@@ -281,6 +290,21 @@ local function CreateTargetMacros()--设置职业宏和快捷键
             {name = "野性印记", command = "/cast 野性印记"},
             {name = "消毒术", command = "/cast 消毒术"},
             {name = "解除诅咒", command = "/cast 解除诅咒"},
+        }
+    elseif playerProfession == "SHAMAN" then--萨满
+        --这里添加德鲁伊技能
+        skills = {
+            {name = "跟随", command = "/follow party1"},
+            {name = "取消跟随", command = "/follow player"},
+            {name = "协助", command = "/assist party1"},
+            {name = "焦点目标", command = "/目标 party1"},
+            {name = "治疗波", command = "/cast 治疗波"},
+            {name = "次级治疗波", command = "/cast 次级治疗波"},
+            {name = "治疗链", command = "/cast 治疗链"},
+            {name = "治疗之泉图腾", command = "/cast 治疗之泉图腾"},
+            {name = "石肤图腾", command = "/cast 石肤图腾"},
+            {name = "消毒术", command = "/cast 消毒术"},
+            {name = "祛病术", command = "/cast 祛病术"},
         }
     end
 	

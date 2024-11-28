@@ -6,7 +6,6 @@ DgrzsFrame:SetPoint("TOPLEFT", 0, 0)  -- 设置框架位置为左上角
 local background = DgrzsFrame:CreateTexture(nil, "BACKGROUND")
 background:SetAllPoints(DgrzsFrame)
 background:SetColorTexture(0, 0, 0, 0.5)  -- 设置背景颜色为黑色，透明度为0.5
-
 -- 定义6个颜色 队友1-5
 local colors = {
     {1, 0, 0, 1},    -- 红色
@@ -400,7 +399,7 @@ local function MS()--牧师
             for n = 1, numMembers do
                 local unit = (n == 1) and "player" or "party" .. (n - 1)
                 local jshp = UnitHealth(unit) / UnitHealthMax(unit) * 100 -- 直接计算百分比
-                if jshp <= 50 then
+                if jshp <= 50 and jshp > 0 then
                     cxjs = cxjs + 1
                 end 
                 if jshp < zdhp then
@@ -610,7 +609,7 @@ local function ND()--小德
             for n = 1, numMembers do
                 local unit = (n == 1) and "player" or "party" .. (n - 1)
                 local jshp = UnitHealth(unit) / UnitHealthMax(unit) * 100 -- 直接计算百分比
-                if jshp <= 50 then
+                if jshp <= 50 and jshp > 0 then
                     cxjs = cxjs + 1
                 end 
                 if jshp < zdhp then
@@ -728,6 +727,99 @@ local function ND()--小德
         end
     end
 end
+local function NS() -- 奶萨
+    SetSquareColor(6) -- 当前对象
+    SetSquareColor1(19)
+    local zdhp = 100 -- 假设最大血量为100
+    local dqdx = 1 -- 默认值
+    if Isparty1InCombat() then -- 判断是否战斗中
+        -- 战斗中
+        if IsInGroup() then -- 判断是否在队伍
+            Gensui(20)
+            -- 队伍内 -- 对全队进行治疗
+            local numMembers = GetNumGroupMembers() -- 队员数量
+            for n = 1, numMembers do
+                local unit = (n == 1) and "player" or "party" .. (n - 1)
+                local debuff = JCdydebuff(unit)
+                local jn1 = CD("消毒术") -- 冷却完毕
+                local jn2 = CD("祛病术") -- 冷却完毕
+                local dxjl = JL(unit)
+
+                if debuff == 1 and jn1 and dxjl <= 30 then
+                    SetSquareColor(n)
+                    SetSquareColor1(8) -- 消毒术
+                    return -- 找到需要驱散的目标后直接返回
+                elseif debuff == 2 and jn2 and dxjl <= 30 then
+                    SetSquareColor(n)
+                    SetSquareColor1(9) -- 祛病术
+                    return -- 找到需要驱散的目标后直接返回
+                end
+            end
+
+            -- 检查治疗
+            local cxjs = 0
+            for n = 1, numMembers do
+                local unit = (n == 1) and "player" or "party" .. (n - 1)
+                local jshp = UnitHealth(unit) / UnitHealthMax(unit) * 100 -- 直接计算百分比
+                if jshp <= 50 and jshp > 0 then
+                    cxjs = cxjs + 1
+                end 
+                if jshp < zdhp then
+                    zdhp = jshp
+                    dqdx = n -- 最低血量玩家
+                end
+            end
+            
+            local unit = (dqdx == 1) and "player" or "party" .. (dqdx - 1)
+            local sf = isPlayerCasting("player") -- 是否在施法
+            local dxjl = JL(unit) -- 目标在30码以内
+
+            if dxjl <= 30 and not sf then
+                -- 读取所有技能CD是否完毕
+                local jn1 = CD("治疗波")
+                local jn2 = CD("次级治疗波")
+                local jn3 = CD("治疗链")
+                local jn4 = CD("治疗之泉图腾")
+                local jn5 = CD("石肤图腾")
+
+                local bufflist = buff("player")
+                -- 直接计算百分比
+                local jshp = UnitHealth(unit) / UnitHealthMax(unit) * 100 -- 当前对象血量
+                local zsmp = UnitPower("player") / UnitPowerMax("player") * 100 -- 自身蓝量百分比
+                local zshp = UnitHealth("player") / UnitHealthMax("player") * 100 -- 自身血量百分比
+
+                if tempSkills["治疗链"] and zshp > 0 and jn3 and cxjs >= 3 then
+                    SetSquareColor(dqdx) -- 当前对象
+                    SetSquareColor1(3) -- 治疗链
+                    return
+                elseif tempSkills["治疗波"] and zshp > 0 and jshp <= 60 and jshp > 0 and jn1 then
+                    SetSquareColor(dqdx) -- 当前对象
+                    SetSquareColor1(1) -- 治疗波
+                    return
+                elseif tempSkills["次级治疗波"] and zshp > 0 and jshp <= 80 and jshp > 0 and jn2 then
+                    SetSquareColor(dqdx) -- 当前对象
+                    SetSquareColor1(2) -- 次级治疗波
+                    return
+                elseif tempSkills["治疗之泉图腾"] and zshp > 0 and jshp <= 60 and jshp > 0 and jn4 and not hasBuff(bufflist, "治疗之泉图腾") then
+                    SetSquareColor(dqdx) -- 当前对象
+                    SetSquareColor1(4) -- 治疗之泉图腾
+                    return
+                elseif tempSkills["石肤图腾"] and zshp > 0 and jshp <= 60 and jshp > 0 and jn5 and not hasBuff(bufflist, "石肤图腾") then
+                    SetSquareColor(dqdx) -- 当前对象
+                    SetSquareColor1(5) -- 石肤图腾
+                    return
+                end
+            end
+        end
+    else
+        -- 脱战
+        if IsInGroup() then -- 判断是否在队伍
+            if not JCch() then -- 检查是否需要吃喝
+                Gensui(5)
+            end
+        end
+    end
+end
 DgrzsFrame:SetScript("OnUpdate", function ()
 	--角色职业
     if UnitIsAFK("player") then--检测是否暂离
@@ -743,6 +835,8 @@ DgrzsFrame:SetScript("OnUpdate", function ()
             MS ()
         elseif playerProfession=="德鲁伊" then
             ND ()
+        elseif playerProfession=="萨满祭司" then
+            NS ()
         end
     end
 end)
