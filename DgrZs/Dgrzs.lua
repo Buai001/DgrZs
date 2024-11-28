@@ -423,10 +423,11 @@ local function MS()--牧师
                 local jn9 = CD("真言术：盾")
                 local jn5 = CD("治疗祷言")
                 local bufflist = buff(unit)
+                local debufflist = debuff(unit)
                 -- 直接计算百分比
                 local jshp = UnitHealth(unit) / UnitHealthMax(unit) * 100
                 
-                if tempSkills["真言术：盾"] and jshp <= 20 and jshp > 0 and jn9 then
+                if tempSkills["真言术：盾"] and jshp <= 20 and jshp > 0 and jn9 and not hasBuff(bufflist,"虚弱灵魂") then
                     SetSquareColor(dqdx) -- 当前对象
                     SetSquareColor1(9) -- 真言术盾
                     local macroName = "真言术：盾"
@@ -456,7 +457,7 @@ local function MS()--牧师
                         end
                     end
                     return
-                elseif tempSkills["恢复"] and jshp <= 90 and jshp > 0 and jn6 and hasBuff(bufflist,"恢复")==false then
+                elseif tempSkills["恢复"] and jshp <= 90 and jshp > 0 and jn6 and not hasBuff(bufflist,"恢复") then
                     SetSquareColor(dqdx) -- 当前对象
                     SetSquareColor1(6) --恢复
                     local macroName = "恢复"
