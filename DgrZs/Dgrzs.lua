@@ -427,7 +427,7 @@ local function MS()--牧师
                 -- 直接计算百分比
                 local jshp = UnitHealth(unit) / UnitHealthMax(unit) * 100
                 
-                if tempSkills["真言术：盾"] and jshp <= 20 and jshp > 0 and jn9 and not hasBuff(bufflist,"虚弱灵魂") then
+                if tempSkills["真言术：盾"] and jshp <= 95 and jshp > 0 and jn9 and not hasBuff(bufflist,"虚弱灵魂") then
                     SetSquareColor(dqdx) -- 当前对象
                     SetSquareColor1(9) -- 真言术盾
                     local macroName = "真言术：盾"
