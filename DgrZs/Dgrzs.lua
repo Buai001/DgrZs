@@ -874,8 +874,6 @@ local function SS()--术士
                 local jn4 = CD("献祭") -- 冷却完毕
                 local jn5 = CD("生命分流") -- 冷却完毕
                 local jn6 = CD("吸取生命") -- 冷却完毕
-                local jn7 = CD("召唤小鬼") -- 冷却完毕
-                local jn8 = CD("魔甲术") -- 冷却完毕
                 local zsmp = UnitPower("player") / UnitPowerMax("player") * 100 -- 自身蓝量百分比
                 local zshp = UnitHealth("player") / UnitHealthMax("player") * 100 -- 自身血量百分比
 
@@ -895,7 +893,7 @@ local function SS()--术士
                     elseif tempSkills["献祭"] and zsmp >= 10 and dxjl < 30 and not hasBuff(bufflist,"献祭") and jn4 then 
                         SetSquareColor1(4)
                         return
-                    elseif tempSkills["吸取生命"] and zsmp >= 10 and dxjl < 30 and zshp < 30 and not hasBuff(bufflist,"吸取生命") and jn5 then 
+                    elseif tempSkills["吸取生命"] and zsmp >= 10 and dxjl < 30 and zshp < 30 and not hasBuff(bufflist,"吸取生命") and jn6 then 
                         SetSquareColor1(5)
                         return
                     elseif tempSkills["暗影箭"] and zsmp >= 10 and dxjl < 30 and jn1 then 
