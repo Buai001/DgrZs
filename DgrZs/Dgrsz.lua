@@ -44,7 +44,7 @@ SlashCmdList["RELOADUI"] = ReloadUICommand
 local classDropdown = CreateFrame("Frame", "MyAddonClassDropdown", frame, "UIDropDownMenuTemplate")
 classDropdown:SetPoint("TOPLEFT", 10, -40)
 
-local classes = {"奶骑", "牧师","德鲁伊","奶萨"}
+local classes = {"奶骑", "牧师","德鲁伊","奶萨","术士"}
 local skillsByClass = {
     ["奶骑"] = {
         {"圣光术", "Interface\\Icons\\Spell_Holy_HolyBolt"},
@@ -90,6 +90,17 @@ local skillsByClass = {
         {"石肤图腾", "Interface\\Icons\\spell_nature_stoneskintotem"},
         {"消毒术", "Interface\\Icons\\spell_nature_nullifypoison"},
         {"祛病术", "Interface\\Icons\\spell_holy_nullifydisease"},
+    },
+    ["术士"] = {
+        {"暗影箭", "Interface\\Icons\\spell_shadow_shadowbolt"},
+        {"腐蚀术", "Interface\\Icons\\spell_shadow_abominationexplosion"},
+        {"痛苦诅咒", "Interface\\Icons\\spell_shadow_curseofsargeras"},
+        {"献祭", "Interface\\Icons\\spell_fire_immolation"},
+        {"生命分流", "Interface\\Icons\\spell_shadow_burningspirit"},
+        {"吸取生命", "Interface\\Icons\\spell_shadow_lifedrain02"},
+        {"召唤小鬼", "Interface\\Icons\\spell_shadow_summonimp"},
+        {"魔甲术", "Interface\\Icons\\spell_shadow_ragingscream"},
+        {"宠物攻击", "Interface\\Icons\\ability_ghoulfrenzy"},
     },
 }
 
@@ -292,7 +303,7 @@ local function CreateTargetMacros()--设置职业宏和快捷键
             {name = "解除诅咒", command = "/cast 解除诅咒"},
         }
     elseif playerProfession == "SHAMAN" then--萨满
-        --这里添加德鲁伊技能
+        --这里添加萨满技能
         skills = {
             {name = "跟随", command = "/follow party1"},
             {name = "取消跟随", command = "/follow player"},
@@ -305,6 +316,23 @@ local function CreateTargetMacros()--设置职业宏和快捷键
             {name = "石肤图腾", command = "/cast 石肤图腾"},
             {name = "消毒术", command = "/cast 消毒术"},
             {name = "祛病术", command = "/cast 祛病术"},
+        }
+    elseif playerProfession == "WARLOCK" then--术士
+        --这里添加术士技能
+        skills = {
+            {name = "跟随", command = "/follow party1"},
+            {name = "取消跟随", command = "/follow player"},
+            {name = "协助", command = "/assist party1"},
+            {name = "焦点目标", command = "/目标 party1"},
+            {name = "暗影箭", command = "/cast 暗影箭"},
+            {name = "腐蚀术", command = "/cast 腐蚀术"},
+            {name = "痛苦诅咒", command = "/cast 痛苦诅咒"},
+            {name = "献祭", command = "/cast 献祭"},
+            {name = "生命分流", command = "/cast 生命分流"},
+            {name = "吸取生命", command = "/cast 吸取生命"},
+            {name = "召唤小鬼", command = "/cast 召唤小鬼"},
+            {name = "魔甲术", command = "/cast 魔甲术"},
+            {name = "宠物攻击", command = "/petattack"},
         }
     end
 	

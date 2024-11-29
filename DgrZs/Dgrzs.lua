@@ -6,13 +6,14 @@ DgrzsFrame:SetPoint("TOPLEFT", 0, 0)  -- 设置框架位置为左上角
 local background = DgrzsFrame:CreateTexture(nil, "BACKGROUND")
 background:SetAllPoints(DgrzsFrame)
 background:SetColorTexture(0, 0, 0, 0.5)  -- 设置背景颜色为黑色，透明度为0.5
--- 定义6个颜色 队友1-5
+-- 定义6个颜色 队友1-5+协助
 local colors = {
     {1, 0, 0, 1},    -- 红色
     {1, 0.5, 0, 1},  -- 橙色
     {1, 1, 0, 1},    -- 黄色
     {0, 1, 0, 1},    -- 绿色
     {0, 1, 1, 1},    -- 青色
+    {0, 0, 1, 1},    -- 蓝色
 	{0, 0, 0, 0}, -- 透明
 }
 
@@ -242,6 +243,8 @@ local function JCch() -- 检查是否需要吃喝
         SetSquareColor1(16) -- 只需要吃
         SetSquareColor2(3)
         return true
+    elseif hasBuff(bufflist, "饮水") or hasBuff(bufflist, "喝水") or hasBuff(bufflist, "进食") then
+        return true
     else
         return false
     end
@@ -258,8 +261,32 @@ local function SendWhisperToparty1(message)--给队长目标发送悄悄话
         end
     end
 end
+local function JCMB()--判断与队长目标是否相同
+    local playerTarget = "target" -- 玩家当前目标
+    local party1Target = "party1target" -- 队友1的目标
+    
+    if UnitExists(playerTarget) and UnitExists(party1Target) then
+        if UnitIsUnit(playerTarget, party1Target) then
+            return true
+        else
+            return false
+        end
+    else
+        return false
+    end
+end
+local function isPlayerCasting(unit)--检测对象是否施法状态
+    local casting = UnitCastingInfo(unit)
+    local channeling = UnitChannelInfo(unit)
+
+    if casting or channeling then
+        return true
+    else
+        return false
+    end
+end
 local function NQ()--奶骑
-    SetSquareColor(6) -- 当前对象
+    SetSquareColor(7) -- 当前对象
     SetSquareColor1(19)
     local zdhp = 100 -- 假设最大血量为100
     local dqdx = 1 -- 默认值
@@ -308,27 +335,28 @@ local function NQ()--奶骑
             
             -- 直接计算百分比
             local jshp = UnitHealth(unit) / UnitHealthMax(unit) * 100
-            
-            if tempSkills["圣疗术"] and jshp <= 20 and jshp > 0 and jn1 then
-                SetSquareColor(dqdx) -- 当前对象
-                SetSquareColor1(4) -- 圣疗术
-                return
-            elseif tempSkills["保护祝福"] and jshp <= 10 and jshp > 0 and jn5 then
-                SetSquareColor(dqdx) -- 当前对象
-                SetSquareColor1(5) -- 保护祝福
-                return
-            elseif tempSkills["圣光术"] and jshp <= 60 and jshp > 0 and jn2 then
-                SetSquareColor(dqdx) -- 当前对象
-                SetSquareColor1(1) -- 圣光术
-                return
-            elseif tempSkills["神圣震击"] and jshp <= 80 and jshp > 0 and jn4 then
-                SetSquareColor(dqdx) -- 当前对象
-                SetSquareColor1(3) -- 神圣震击
-                return    
-            elseif tempSkills["圣光闪现"] and jshp <= 80 and jshp > 0 and jn3 then
-                SetSquareColor(dqdx) -- 当前对象
-                SetSquareColor1(2) -- 圣光闪现
-                return
+            if not isPlayerCasting("player") then--不在读条才进行下面的判断
+                if tempSkills["圣疗术"] and jshp <= 20 and jshp > 0 and jn1 then
+                    SetSquareColor(dqdx) -- 当前对象
+                    SetSquareColor1(4) -- 圣疗术
+                    return
+                elseif tempSkills["保护祝福"] and jshp <= 10 and jshp > 0 and jn5 then
+                    SetSquareColor(dqdx) -- 当前对象
+                    SetSquareColor1(5) -- 保护祝福
+                    return
+                elseif tempSkills["圣光术"] and jshp <= 60 and jshp > 0 and jn2 then
+                    SetSquareColor(dqdx) -- 当前对象
+                    SetSquareColor1(1) -- 圣光术
+                    return
+                elseif tempSkills["神圣震击"] and jshp <= 80 and jshp > 0 and jn4 then
+                    SetSquareColor(dqdx) -- 当前对象
+                    SetSquareColor1(3) -- 神圣震击
+                    return    
+                elseif tempSkills["圣光闪现"] and jshp <= 80 and jshp > 0 and jn3 then
+                    SetSquareColor(dqdx) -- 当前对象
+                    SetSquareColor1(2) -- 圣光闪现
+                    return
+                end
             end
         end
     else
@@ -371,7 +399,7 @@ local function NQ()--奶骑
     end
 end
 local function MS()--牧师
-    SetSquareColor(6) -- 当前对象
+    SetSquareColor(7) -- 当前对象
     SetSquareColor1(19)
     local zdhp = 100 -- 假设最大血量为100
     local dqdx = 1 -- 默认值
@@ -425,79 +453,80 @@ local function MS()--牧师
                 local debufflist = debuff(unit)
                 -- 直接计算百分比
                 local jshp = UnitHealth(unit) / UnitHealthMax(unit) * 100
-                
-                if tempSkills["真言术：盾"] and jshp <= 95 and jshp > 0 and jn9 and not hasBuff(bufflist,"虚弱灵魂") then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(9) -- 真言术盾
-                    local macroName = "真言术：盾"
-                    local macroIndex = GetMacroIndexByName(macroName)
-                    if macroIndex > 0 then  -- 确保宏存在
-                        local Level = UnitLevel(unit)
-                        if Level <= 6 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 1)")
-                        elseif Level <= 12 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 2)")
-                        elseif Level <= 18 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 3)")
-                        elseif Level <= 24 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 4)")
-                        elseif Level <= 30 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 5)")
-                        elseif Level <= 36 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 6)")
-                        elseif Level <= 42 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 7)")
-                        elseif Level <= 48 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 8)")
-                        elseif Level <= 54 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 9)")
-                        elseif Level <= 60 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 10)")
+                if not isPlayerCasting("player") then--不在读条才进行下面的判断
+                    if tempSkills["真言术：盾"] and jshp <= 95 and jshp > 0 and jn9 and not hasBuff(bufflist,"虚弱灵魂") then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(9) -- 真言术盾
+                        local macroName = "真言术：盾"
+                        local macroIndex = GetMacroIndexByName(macroName)
+                        if macroIndex > 0 then  -- 确保宏存在
+                            local Level = UnitLevel(unit)
+                            if Level <= 6 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 1)")
+                            elseif Level <= 12 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 2)")
+                            elseif Level <= 18 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 3)")
+                            elseif Level <= 24 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 4)")
+                            elseif Level <= 30 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 5)")
+                            elseif Level <= 36 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 6)")
+                            elseif Level <= 42 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 7)")
+                            elseif Level <= 48 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 8)")
+                            elseif Level <= 54 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 9)")
+                            elseif Level <= 60 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 10)")
+                            end
                         end
-                    end
-                    return
-                elseif tempSkills["恢复"] and jshp <= 90 and jshp > 0 and jn6 and not hasBuff(bufflist,"恢复") then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(6) --恢复
-                    local macroName = "恢复"
-                    local macroIndex = GetMacroIndexByName(macroName)
-                    if macroIndex > 0 then  -- 确保宏存在
-                        local Level = UnitLevel(unit)
-                        if Level <= 10 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 1)")
-                        elseif Level <= 20 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 2)")
-                        elseif Level <= 30 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 3)")
-                        elseif Level <= 40 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 4)")
-                        elseif Level <= 50 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 5)")
-                        elseif Level <= 60 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 6)")
+                        return
+                    elseif tempSkills["恢复"] and jshp <= 90 and jshp > 0 and jn6 and not hasBuff(bufflist,"恢复") then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(6) --恢复
+                        local macroName = "恢复"
+                        local macroIndex = GetMacroIndexByName(macroName)
+                        if macroIndex > 0 then  -- 确保宏存在
+                            local Level = UnitLevel(unit)
+                            if Level <= 10 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 1)")
+                            elseif Level <= 20 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 2)")
+                            elseif Level <= 30 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 3)")
+                            elseif Level <= 40 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 4)")
+                            elseif Level <= 50 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 5)")
+                            elseif Level <= 60 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 6)")
+                            end
                         end
+                        return
+                    elseif tempSkills["治疗祷言"] and jshp <= 60 and jshp > 0 and jn5 and cxjs>=3 then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(5) -- 治疗祷言
+                        return
+                    elseif tempSkills["强效治疗术"] and jshp <= 60 and jshp > 0 and jn3 then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(3) -- 强效治疗术
+                        return
+                    elseif tempSkills["治疗术"] and jshp <= 60 and jshp > 0 and jn2 then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(2) -- 治疗术
+                        return
+                    elseif tempSkills["快速治疗"] and jshp <= 80 and jshp > 0 and jn4 then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(4) -- 快速治疗
+                        return
+                    elseif tempSkills["次级治疗术"] and jshp <= 80 and jshp > 0 and jn1 then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(1) -- 次级治疗术
+                        return
                     end
-                    return
-                elseif tempSkills["治疗祷言"] and jshp <= 60 and jshp > 0 and jn5 and cxjs>=3 then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(5) -- 治疗祷言
-                    return
-                elseif tempSkills["强效治疗术"] and jshp <= 60 and jshp > 0 and jn3 then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(3) -- 强效治疗术
-                    return
-                elseif tempSkills["治疗术"] and jshp <= 60 and jshp > 0 and jn2 then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(2) -- 治疗术
-                    return
-                elseif tempSkills["快速治疗"] and jshp <= 80 and jshp > 0 and jn4 then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(4) -- 快速治疗
-                    return
-                elseif tempSkills["次级治疗术"] and jshp <= 80 and jshp > 0 and jn1 then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(1) -- 次级治疗术
-                    return
                 end
             end
         end
@@ -576,7 +605,7 @@ local function MS()--牧师
     end
 end
 local function ND()--小德
-    SetSquareColor(6) -- 当前对象
+    SetSquareColor(7) -- 当前对象
     SetSquareColor1(19)
     local zdhp = 100 -- 假设最大血量为100
     local dqdx = 1 -- 默认值
@@ -635,26 +664,28 @@ local function ND()--小德
                 local jshp = UnitHealth(unit) / UnitHealthMax(unit) * 100 --当前对象血量
                 local zsmp = UnitPower("player") / UnitPowerMax("player") * 100 -- 自身蓝量百分比
                 local zshp = UnitHealth("player") / UnitHealthMax("player") * 100 -- 自身血量百分比
-                if tempSkills["激活"] and jsmp <= 10 and zshp > 0 and jshp > 0 and jn5 then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(5) -- 激活
-                    return
-                elseif tempSkills["宁静"] and  zshp > 0 and jn4 and cxjs>=3 then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(4) -- 宁静
-                    return
-                elseif tempSkills["回春术"] and  zshp > 0 and jshp <= 90 and jshp > 0 and jn2 and hasBuff(bufflist,"回春术")==false then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(2) -- 回春术
-                    return
-                elseif tempSkills["治疗之触"] and  zshp > 0 and jshp <= 60 and jshp > 0 and jn1 then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(1) -- 治疗之触
-                    return
-                elseif tempSkills["愈合"] and  zshp > 0 and jshp <= 60 and jshp > 0 and jn3 and hasBuff(bufflist,"愈合")==false then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(3) -- 愈合
-                    return
+                if not isPlayerCasting("player") then--不在读条才进行下面的判断
+                    if tempSkills["激活"] and jsmp <= 10 and zshp > 0 and jshp > 0 and jn5 then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(5) -- 激活
+                        return
+                    elseif tempSkills["宁静"] and  zshp > 0 and jn4 and cxjs>=3 then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(4) -- 宁静
+                        return
+                    elseif tempSkills["回春术"] and  zshp > 0 and jshp <= 90 and jshp > 0 and jn2 and hasBuff(bufflist,"回春术")==false then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(2) -- 回春术
+                        return
+                    elseif tempSkills["治疗之触"] and  zshp > 0 and jshp <= 60 and jshp > 0 and jn1 then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(1) -- 治疗之触
+                        return
+                    elseif tempSkills["愈合"] and  zshp > 0 and jshp <= 60 and jshp > 0 and jn3 and hasBuff(bufflist,"愈合")==false then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(3) -- 愈合
+                        return
+                    end
                 end
             end
         end
@@ -728,7 +759,7 @@ local function ND()--小德
     end
 end
 local function NS() -- 奶萨
-    SetSquareColor(6) -- 当前对象
+    SetSquareColor(7) -- 当前对象
     SetSquareColor1(19)
     local zdhp = 100 -- 假设最大血量为100
     local dqdx = 1 -- 默认值
@@ -787,27 +818,28 @@ local function NS() -- 奶萨
                 local jshp = UnitHealth(unit) / UnitHealthMax(unit) * 100 -- 当前对象血量
                 local zsmp = UnitPower("player") / UnitPowerMax("player") * 100 -- 自身蓝量百分比
                 local zshp = UnitHealth("player") / UnitHealthMax("player") * 100 -- 自身血量百分比
-
-                if tempSkills["治疗链"] and zshp > 0 and jn3 and cxjs >= 3 then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(3) -- 治疗链
-                    return
-                elseif tempSkills["治疗波"] and zshp > 0 and jshp <= 60 and jshp > 0 and jn1 then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(1) -- 治疗波
-                    return
-                elseif tempSkills["次级治疗波"] and zshp > 0 and jshp <= 80 and jshp > 0 and jn2 then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(2) -- 次级治疗波
-                    return
-                elseif tempSkills["治疗之泉图腾"] and zshp > 0 and jshp <= 60 and jshp > 0 and jn4 and not hasBuff(bufflist, "治疗之泉图腾") then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(4) -- 治疗之泉图腾
-                    return
-                elseif tempSkills["石肤图腾"] and zshp > 0 and jshp <= 60 and jshp > 0 and jn5 and not hasBuff(bufflist, "石肤图腾") then
-                    SetSquareColor(dqdx) -- 当前对象
-                    SetSquareColor1(5) -- 石肤图腾
-                    return
+                if not isPlayerCasting("player") then--不在读条才进行下面的判断
+                    if tempSkills["治疗链"] and zshp > 0 and jn3 and cxjs >= 3 then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(3) -- 治疗链
+                        return
+                    elseif tempSkills["治疗波"] and zshp > 0 and jshp <= 60 and jshp > 0 and jn1 then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(1) -- 治疗波
+                        return
+                    elseif tempSkills["次级治疗波"] and zshp > 0 and jshp <= 80 and jshp > 0 and jn2 then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(2) -- 次级治疗波
+                        return
+                    elseif tempSkills["治疗之泉图腾"] and zshp > 0 and jshp <= 60 and jshp > 0 and jn4 and not hasBuff(bufflist, "治疗之泉图腾") then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(4) -- 治疗之泉图腾
+                        return
+                    elseif tempSkills["石肤图腾"] and zshp > 0 and jshp <= 60 and jshp > 0 and jn5 and not hasBuff(bufflist, "石肤图腾") then
+                        SetSquareColor(dqdx) -- 当前对象
+                        SetSquareColor1(5) -- 石肤图腾
+                        return
+                    end
                 end
             end
         end
@@ -820,8 +852,99 @@ local function NS() -- 奶萨
         end
     end
 end
+local function SS()--术士
+    SetSquareColor(7) -- 当前对象
+    SetSquareColor1(19)
+    local zdhp = 100 -- 假设最大血量为100
+    local dqdx = 1 -- 默认值
+    if Isparty1InCombat() then --判断是否战斗中
+        --战斗中
+        if IsInGroup() then--判断是否在队伍
+            Gensui(20)
+
+            if not JCMB() then--目标不同 需要协助
+                SetSquareColor(6)
+            end
+            if UnitExists("target") then
+                local dxjl = JL("target")
+                local bufflist = debuff("target")
+                local jn1 = CD("暗影箭") -- 冷却完毕
+                local jn2 = CD("腐蚀术") -- 冷却完毕
+                local jn3 = CD("痛苦诅咒") -- 冷却完毕
+                local jn4 = CD("献祭") -- 冷却完毕
+                local jn5 = CD("生命分流") -- 冷却完毕
+                local jn6 = CD("吸取生命") -- 冷却完毕
+                local jn7 = CD("召唤小鬼") -- 冷却完毕
+                local jn8 = CD("魔甲术") -- 冷却完毕
+                local zsmp = UnitPower("player") / UnitPowerMax("player") * 100 -- 自身蓝量百分比
+                local zshp = UnitHealth("player") / UnitHealthMax("player") * 100 -- 自身血量百分比
+
+                if tempSkills["宠物攻击"] and dxjl < 30 then
+                    SetSquareColor1(9)
+                end
+                if not isPlayerCasting("player") then--不在读条才进行下面的判断
+                    if tempSkills["生命分流"] and zshp >30 and zsmp <30 and jn5 then
+                        SetSquareColor1(5)
+                        return
+                    elseif tempSkills["腐蚀术"] and zsmp >= 10 and dxjl < 30 and not hasBuff(bufflist,"腐蚀术") and jn2 then 
+                        SetSquareColor1(2)
+                        return
+                    elseif tempSkills["痛苦诅咒"] and zsmp >= 10 and dxjl < 30 and not hasBuff(bufflist,"痛苦诅咒") and jn3 then 
+                        SetSquareColor1(3)
+                        return
+                    elseif tempSkills["献祭"] and zsmp >= 10 and dxjl < 30 and not hasBuff(bufflist,"献祭") and jn4 then 
+                        SetSquareColor1(4)
+                        return
+                    elseif tempSkills["吸取生命"] and zsmp >= 10 and dxjl < 30 and zshp < 30 and not hasBuff(bufflist,"吸取生命") and jn5 then 
+                        SetSquareColor1(5)
+                        return
+                    elseif tempSkills["暗影箭"] and zsmp >= 10 and dxjl < 30 and jn1 then 
+                        SetSquareColor1(1)
+                        return
+                    end
+                end
+            end
+        end
+    else
+        -- 脱战
+        if IsInGroup() then -- 判断是否在队伍
+            if not isPlayerCasting("player") then--不在读条才进行下面的判断
+                if not JCch() then -- 检查是否需要吃喝
+                    Gensui(5)
+                end
+    
+                local bufflist = buff("player")
+                local zshp = UnitHealth("player") / UnitHealthMax("player") * 100 -- 自身血量百分比
+    
+                if tempSkills["魔甲术"] and not hasBuff(bufflist,"魔甲术") and not hasBuff(bufflist,"恶魔皮肤") then
+                    SetSquareColor1(8) -- 魔甲术
+                    local macroName = "魔甲术"
+                    local macroIndex = GetMacroIndexByName(macroName)
+                    if macroIndex > 0 then  -- 确保宏存在
+                        local Level = UnitLevel("player")
+                        if Level <= 10 then
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恶魔皮肤(等级 1)")
+                        elseif Level <= 20 then
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恶魔皮肤(等级 2)")
+                        elseif Level <= 30 then
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 魔甲术(等级 1)")
+                        elseif Level <= 40 then
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 魔甲术(等级 2)")
+                        elseif Level <= 50 then
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 魔甲术(等级 3)")
+                        elseif Level <= 60 then
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 魔甲术(等级 4)")
+                        end
+                    end
+                    return
+                elseif not UnitExists("pet") and zshp > 0 then
+                    SetSquareColor1(7)
+                end
+            end
+        end
+    end
+end
 DgrzsFrame:SetScript("OnUpdate", function ()
-	--角色职业
     if UnitIsAFK("player") then--检测是否暂离
         SetSquareColor(1)
         SetSquareColor1(15)
@@ -837,6 +960,8 @@ DgrzsFrame:SetScript("OnUpdate", function ()
             ND ()
         elseif playerProfession=="萨满祭司" then
             NS ()
+        elseif playerProfession=="术士" then
+            SS ()
         end
     end
 end)
