@@ -461,26 +461,26 @@ local function MS()--牧师
                         local macroIndex = GetMacroIndexByName(macroName)
                         if macroIndex > 0 then  -- 确保宏存在
                             local Level = UnitLevel(unit)
-                            if Level <= 6 then
+                            if Level < 12 then
                                 EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 1)")
-                            elseif Level <= 12 then
+                            elseif Level < 18 then
                                 EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 2)")
-                            elseif Level <= 18 then
+                            elseif Level < 24 then
                                 EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 3)")
-                            elseif Level <= 24 then
+                            elseif Level < 30 then
                                 EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 4)")
-                            elseif Level <= 30 then
+                            elseif Level < 36 then
                                 EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 5)")
-                            elseif Level <= 36 then
+                            elseif Level < 42 then
                                 EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 6)")
-                            elseif Level <= 42 then
+                            elseif Level < 48 then
                                 EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 7)")
-                            elseif Level <= 48 then
+                            elseif Level < 54 then
                                 EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 8)")
-                            elseif Level <= 54 then
+                            elseif Level < 60 then
                                 EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 9)")
-                            elseif Level <= 60 then
-                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾(等级 10)")
+                            else
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：盾")
                             end
                         end
                         return
@@ -491,18 +491,26 @@ local function MS()--牧师
                         local macroIndex = GetMacroIndexByName(macroName)
                         if macroIndex > 0 then  -- 确保宏存在
                             local Level = UnitLevel(unit)
-                            if Level <= 10 then
+                            if Level < 14 then
                                 EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 1)")
-                            elseif Level <= 20 then
+                            elseif Level < 20 then
                                 EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 2)")
-                            elseif Level <= 30 then
+                            elseif Level < 26 then
                                 EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 3)")
-                            elseif Level <= 40 then
+                            elseif Level < 32 then
                                 EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 4)")
-                            elseif Level <= 50 then
+                            elseif Level < 38 then
                                 EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 5)")
-                            elseif Level <= 60 then
+                            elseif Level < 44 then
                                 EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 6)")
+                            elseif Level < 50 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 7)")
+                            elseif Level < 56 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 8)")
+                            elseif Level < 60 then
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复(等级 9)")
+                            else
+                                EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恢复")
                             end
                         end
                         return
@@ -556,18 +564,18 @@ local function MS()--牧师
                     local macroIndex = GetMacroIndexByName(macroName)
                     if macroIndex > 0 then  -- 确保宏存在
                         local Level = UnitLevel(unit)
-                        if Level <= 10 then
+                        if Level < 12 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：韧(等级 1)")
-                        elseif Level <= 20 then
+                        elseif Level < 24 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：韧(等级 2)")
-                        elseif Level <= 30 then
+                        elseif Level < 36 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：韧(等级 3)")
-                        elseif Level <= 40 then
+                        elseif Level < 48 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：韧(等级 4)")
-                        elseif Level <= 50 then
+                        elseif Level < 60 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：韧(等级 5)")
-                        elseif Level <= 60 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：韧(等级 6)")
+                        else
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 真言术：韧")
                         end
                     end
                     return
@@ -578,16 +586,14 @@ local function MS()--牧师
                     local macroIndex = GetMacroIndexByName(macroName)
                     if macroIndex > 0 then  -- 确保宏存在
                         local Level = UnitLevel(unit)
-                        if Level <= 20 then
+                        if Level <= 40 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 神圣之灵(等级 1)")
-                        elseif Level <= 30 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 神圣之灵(等级 2)")
-                        elseif Level <= 40 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 神圣之灵(等级 3)")
                         elseif Level <= 50 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 神圣之灵(等级 4)")
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 神圣之灵(等级 2)")
                         elseif Level <= 60 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 神圣之灵(等级 5)")
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 神圣之灵(等级 3)")
+                        else
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 神圣之灵")
                         end
                     end
                     return
@@ -716,18 +722,20 @@ local function ND()--小德
                     local macroIndex = GetMacroIndexByName(macroName)
                     if macroIndex > 0 then  -- 确保宏存在
                         local Level = UnitLevel(unit)
-                        if Level <= 10 then
+                        if Level < 10 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 野性印记(等级 1)")
-                        elseif Level <= 20 then
+                        elseif Level < 20 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 野性印记(等级 2)")
-                        elseif Level <= 30 then
+                        elseif Level < 30 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 野性印记(等级 3)")
-                        elseif Level <= 40 then
+                        elseif Level < 40 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 野性印记(等级 4)")
-                        elseif Level <= 50 then
+                        elseif Level < 50 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 野性印记(等级 5)")
-                        elseif Level <= 60 then
+                        elseif Level < 60 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 野性印记(等级 6)")
+                        else
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 野性印记")
                         end
                     end
                     return
@@ -738,18 +746,18 @@ local function ND()--小德
                     local macroIndex = GetMacroIndexByName(macroName)
                     if macroIndex > 0 then  -- 确保宏存在
                         local Level = UnitLevel(unit)
-                        if Level <= 10 then
+                        if Level < 14 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 荆棘术(等级 1)")
-                        elseif Level <= 20 then
+                        elseif Level < 24 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 荆棘术(等级 2)")
-                        elseif Level <= 30 then
+                        elseif Level < 34 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 荆棘术(等级 3)")
-                        elseif Level <= 40 then
+                        elseif Level < 44 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 荆棘术(等级 4)")
-                        elseif Level <= 50 then
+                        elseif Level < 54 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 荆棘术(等级 5)")
-                        elseif Level <= 60 then
-                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 荆棘术(等级 6)")
+                        else
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 荆棘术")
                         end
                     end
                     return
@@ -920,18 +928,20 @@ local function SS()--术士
                     local macroIndex = GetMacroIndexByName(macroName)
                     if macroIndex > 0 then  -- 确保宏存在
                         local Level = UnitLevel("player")
-                        if Level <= 10 then
+                        if Level < 10 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恶魔皮肤(等级 1)")
-                        elseif Level <= 20 then
+                        elseif Level < 20 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 恶魔皮肤(等级 2)")
-                        elseif Level <= 30 then
+                        elseif Level < 30 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 魔甲术(等级 1)")
-                        elseif Level <= 40 then
+                        elseif Level < 40 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 魔甲术(等级 2)")
-                        elseif Level <= 50 then
+                        elseif Level < 50 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 魔甲术(等级 3)")
-                        elseif Level <= 60 then
+                        elseif Level < 60 then
                             EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 魔甲术(等级 4)")
+                        else
+                            EditMacro(macroIndex, macroName, "INV_MISC_QUESTIONMARK", "/cast 魔甲术(等级 5)")
                         end
                     end
                     return
@@ -942,6 +952,7 @@ local function SS()--术士
         end
     end
 end
+
 DgrzsFrame:SetScript("OnUpdate", function ()
     if UnitIsAFK("player") then--检测是否暂离
         SetSquareColor(1)
