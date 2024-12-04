@@ -791,7 +791,7 @@ local function NS() -- 奶萨
                 local debuff = JCdydebuff(unit)
                 local jn1 = CD("消毒术") -- 冷却完毕
                 local jn2 = CD("祛病术") -- 冷却完毕
-                local dxjl = JL(unit)
+                local dxjl = DYJL(unit)
 
                 if debuff == 1 and jn1 and dxjl <= 30 then
                     SetSquareColor(n)
@@ -820,7 +820,7 @@ local function NS() -- 奶萨
             
             local unit = (dqdx == 1) and "player" or "party" .. (dqdx - 1)
             local sf = isPlayerCasting("player") -- 是否在施法
-            local dxjl = HQJL(unit) -- 目标在30码以内
+            local dxjl = DYJL(unit) -- 目标在30码以内
 
             if dxjl > 0 and dxjl <= 30 and not sf then
                 -- 读取所有技能CD是否完毕
@@ -885,7 +885,7 @@ local function SS()--术士
                 SetSquareColor(6)
             end
             if UnitExists("target") then
-                local dxjl = JL("target")
+                local dxjl = DFJL("target")
                 local bufflist = debuff("target")
                 local jn1 = CD("暗影箭") -- 冷却完毕
                 local jn2 = CD("腐蚀术") -- 冷却完毕
