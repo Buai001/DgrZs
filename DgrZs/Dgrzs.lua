@@ -100,9 +100,20 @@ local LibStub = LibStub or require("LibStub")
 -- 加载 LibRangeCheck-3.0
 local rc = LibStub("LibRangeCheck-3.0")
 
-local function JL(unit) -- 获取距离
+local function DFJL(unit) -- 获取距离
     local minRange, maxRange = rc:GetRange(unit)
     return maxRange
+end
+local function DYJL(unit) -- 检测与对象的距离
+    if UnitExists(unit) then -- 检查目标是否存在
+        local distanceSquared = UnitDistanceSquared(unit)
+        if distanceSquared then
+            -- 计算正常的距离
+            local distance = math.sqrt(distanceSquared)
+            return distance
+        end
+    end
+    return 0 -- 如果目标不存在或距离平方无效，返回 0
 end
 local function isPlayerCasting(unit)--检测自身是否施法状态
     local casting = UnitCastingInfo(unit)
@@ -205,11 +216,11 @@ local function Isparty1InCombat()--判断是否战斗状态
 end
 local function Gensui() -- 判断是否跟随
     if UnitExists("party1") then
-        local distance = JL("party1")
+        local distance = DYJL("party1")
         local yidong = GetUnitSpeed("player") > 0 and not IsMounted()
 
         -- 检查距离和移动状态
-        if (distance == nil or distance > 20 or distance < 10) and yidong then
+        if (distance > 20 or distance < 10) and yidong then
             SetSquareColor2(2)--停止跟随
         elseif distance >= 10 and distance <= 20 and not yidong then
             SetSquareColor2(1)--开始跟随
@@ -297,13 +308,13 @@ local function NQ()--奶骑
             local debuff = JCdydebuff(unit, "圣骑士")
             local jn1 = CD("清洁术") -- 冷却完毕
             local jn2 = CD("纯净术") -- 冷却完毕
-            local dxjl = JL(unit)
+            local dxjl = DYJL(unit)
 
-           if (debuff == 1 or debuff == 2) and jn1 and dxjl <= 5 and tempSkills["清洁术"] then
+           if (debuff == 1 or debuff == 2) and jn1 and dxjl <= 30 and tempSkills["清洁术"] then
                 SetSquareColor(n)
                 SetSquareColor1(9) -- 清洁术
                 return -- 找到需要驱散的目标后直接返回
-            elseif (debuff == 1 or debuff == 2) and jn2 and dxjl <= 5 and tempSkills["纯净术"] then
+            elseif (debuff == 1 or debuff == 2) and jn2 and dxjl <= 30 and tempSkills["纯净术"] then
                 SetSquareColor(n)
                 SetSquareColor1(10) -- 纯净术
                 return -- 找到需要驱散的目标后直接返回
@@ -321,9 +332,9 @@ local function NQ()--奶骑
         end
         local unit = (dqdx == 1) and "player" or "party" .. (dqdx - 1)
         local sf = isPlayerCasting("player") -- 是否在施法
-        local dxjl = JL(unit) -- 目标在30码以内
+        local dxjl = DYJL(unit) -- 目标在30码以内
 
-        if dxjl > 0 and dxjl <= 5 and not sf then
+        if dxjl > 0 and dxjl <= 30 and not sf then
             -- 读取所有技能CD是否完毕
             local jn1 = CD("圣疗术")
             local jn2 = CD("圣光术")
@@ -372,12 +383,12 @@ local function NQ()--奶骑
                 local jn1 = CD("力量祝福")
                 local jn2 = CD("智慧祝福")
                 local jn3 = CD("王者祝福")
-                local dxjl = JL(unit) -- 目标在30码以内
+                local dxjl = DYJL(unit) -- 目标在30码以内
 
                 local bufflist = buff(unit)
-                local hasStrengthBuff = tempSkills["力量祝福"] and jshp > 0 and jn1 and dxjl <= 5 and not hasBuff(bufflist, "力量祝福")
-                local hasWisdomBuff = tempSkills["智慧祝福"] and jshp > 0 and jn2 and dxjl <= 5 and not hasBuff(bufflist, "智慧祝福")
-                local hasKingsBuff = tempSkills["王者祝福"] and jshp > 0 and jn3 and dxjl <= 5 and not hasBuff(bufflist, "王者祝福")
+                local hasStrengthBuff = tempSkills["力量祝福"] and jshp > 0 and jn1 and dxjl <= 30 and not hasBuff(bufflist, "力量祝福")
+                local hasWisdomBuff = tempSkills["智慧祝福"] and jshp > 0 and jn2 and dxjl <= 30 and not hasBuff(bufflist, "智慧祝福")
+                local hasKingsBuff = tempSkills["王者祝福"] and jshp > 0 and jn3 and dxjl <= 30 and not hasBuff(bufflist, "王者祝福")
 
                 if hasStrengthBuff then
                     SetSquareColor(n) -- 当前对象
@@ -411,9 +422,9 @@ local function MS()--牧师
                 local unit = (n == 1) and "player" or "party" .. (n - 1)
                 local debuff = JCdydebuff(unit, "牧师")
                 local jn1 = CD("祛病术") -- 冷却完毕
-                local dxjl = JL(unit)
+                local dxjl = DYJL(unit)
     
-                if debuff == 2 and jn1 and dxjl <= 5 then
+                if debuff == 2 and jn1 and dxjl <= 30 then
                     SetSquareColor(n)
                     SetSquareColor1(11) -- 祛病术
                     return -- 找到需要驱散的目标后直接返回
@@ -436,9 +447,9 @@ local function MS()--牧师
             
             local unit = (dqdx == 1) and "player" or "party" .. (dqdx - 1)
             local sf = isPlayerCasting("player") -- 是否在施法
-            local dxjl = JL(unit) -- 目标在30码以内
+            local dxjl = DYJL(unit) -- 目标在30码以内
     
-            if dxjl > 0 and dxjl <= 5 and not sf then
+            if dxjl > 0 and dxjl <= 30 and not sf then
                 -- 读取所有技能CD是否完毕
                 local jn3 = CD("强效治疗术")
                 local jn2 = CD("治疗术")
@@ -549,11 +560,11 @@ local function MS()--牧师
                 -- 读取所有技能CD是否完毕
                 local jn1 = CD("真言术：韧")
                 local jn2 = CD("神圣之灵")
-                local dxjl = JL(unit) -- 目标在30码以内
+                local dxjl = DYJL(unit) -- 目标在30码以内
 
                 local bufflist = buff(unit)
-                local hasStrengthBuff = tempSkills["真言术.韧"] and jshp > 0 and jn1 and dxjl <= 5 and not hasBuff(bufflist, "真言术：韧")
-                local hasWisdomBuff = tempSkills["神圣之灵"] and jshp > 0 and jn2 and dxjl <= 5 and not hasBuff(bufflist, "神圣之灵")
+                local hasStrengthBuff = tempSkills["真言术.韧"] and jshp > 0 and jn1 and dxjl <= 30 and not hasBuff(bufflist, "真言术：韧")
+                local hasWisdomBuff = tempSkills["神圣之灵"] and jshp > 0 and jn2 and dxjl <= 30 and not hasBuff(bufflist, "神圣之灵")
 
                 if hasStrengthBuff then
                     SetSquareColor(n) -- 当前对象
@@ -624,13 +635,13 @@ local function ND()--小德
                 local debuff = JCdydebuff(unit)
                 local jn1 = CD("消毒术") -- 冷却完毕
                 local jn2 = CD("解除诅咒") -- 冷却完毕
-                local dxjl = JL(unit)
+                local dxjl = DYJL(unit)
     
-                if debuff == 1 and jn1 and dxjl <= 5 then
+                if debuff == 1 and jn1 and dxjl <= 30 then
                     SetSquareColor(n)
                     SetSquareColor1(8) -- 消毒术
                     return -- 找到需要驱散的目标后直接返回
-                elseif debuff == 4 and jn2 and dxjl <= 5 then
+                elseif debuff == 4 and jn2 and dxjl <= 30 then
                     SetSquareColor(n)
                     SetSquareColor1(9) -- 解除诅咒
                     return -- 找到需要驱散的目标后直接返回
@@ -653,9 +664,9 @@ local function ND()--小德
             
             local unit = (dqdx == 1) and "player" or "party" .. (dqdx - 1)
             local sf = isPlayerCasting("player") -- 是否在施法
-            local dxjl = JL(unit) -- 目标在30码以内
+            local dxjl = DYJL(unit) -- 目标在30码以内
 
-            if dxjl > 0 and dxjl <= 5 and not sf then
+            if dxjl > 0 and dxjl <= 30 and not sf then
                 -- 读取所有技能CD是否完毕
                 local jn1 = CD("治疗之触")
                 local jn2 = CD("回春术")
@@ -707,11 +718,11 @@ local function ND()--小德
                 -- 读取所有技能CD是否完毕
                 local jn1 = CD("野性印记")
                 local jn2 = CD("荆棘术")
-                local dxjl = JL(unit) -- 目标在30码以内
+                local dxjl = DYJL(unit) -- 目标在30码以内
 
                 local bufflist = buff(unit)
-                local hasStrengthBuff = tempSkills["野性印记"] and jshp > 0 and jn1 and dxjl <= 5 and not hasBuff(bufflist, "野性印记")
-                local hasWisdomBuff = tempSkills["荆棘术"] and jshp > 0 and jn2 and dxjl <= 5 and not hasBuff(bufflist, "荆棘术")
+                local hasStrengthBuff = tempSkills["野性印记"] and jshp > 0 and jn1 and dxjl <= 30 and not hasBuff(bufflist, "野性印记")
+                local hasWisdomBuff = tempSkills["荆棘术"] and jshp > 0 and jn2 and dxjl <= 30 and not hasBuff(bufflist, "荆棘术")
 
                 if hasStrengthBuff then
                     SetSquareColor(n) -- 当前对象
@@ -782,11 +793,11 @@ local function NS() -- 奶萨
                 local jn2 = CD("祛病术") -- 冷却完毕
                 local dxjl = JL(unit)
 
-                if debuff == 1 and jn1 and dxjl <= 5 then
+                if debuff == 1 and jn1 and dxjl <= 30 then
                     SetSquareColor(n)
                     SetSquareColor1(6) -- 消毒术
                     return -- 找到需要驱散的目标后直接返回
-                elseif debuff == 2 and jn2 and dxjl <= 5 then
+                elseif debuff == 2 and jn2 and dxjl <= 30 then
                     SetSquareColor(n)
                     SetSquareColor1(7) -- 祛病术
                     return -- 找到需要驱散的目标后直接返回
@@ -809,9 +820,9 @@ local function NS() -- 奶萨
             
             local unit = (dqdx == 1) and "player" or "party" .. (dqdx - 1)
             local sf = isPlayerCasting("player") -- 是否在施法
-            local dxjl = JL(unit) -- 目标在30码以内
+            local dxjl = HQJL(unit) -- 目标在30码以内
 
-            if dxjl > 0 and dxjl <= 5 and not sf then
+            if dxjl > 0 and dxjl <= 30 and not sf then
                 -- 读取所有技能CD是否完毕
                 local jn1 = CD("治疗波")
                 local jn2 = CD("次级治疗波")
@@ -820,10 +831,12 @@ local function NS() -- 奶萨
                 local jn5 = CD("石肤图腾")
 
                 local bufflist = buff("player")
+
                 -- 直接计算百分比
                 local jshp = UnitHealth(unit) / UnitHealthMax(unit) * 100 -- 当前对象血量
                 local zsmp = UnitPower("player") / UnitPowerMax("player") * 100 -- 自身蓝量百分比
                 local zshp = UnitHealth("player") / UnitHealthMax("player") * 100 -- 自身血量百分比
+
                 if not isPlayerCasting("player") then--不在读条才进行下面的判断
                     if tempSkills["治疗链"] and zshp > 0 and jn3 and cxjs >= 3 then
                         SetSquareColor(dqdx) -- 当前对象
@@ -883,26 +896,26 @@ local function SS()--术士
                 local zsmp = UnitPower("player") / UnitPowerMax("player") * 100 -- 自身蓝量百分比
                 local zshp = UnitHealth("player") / UnitHealthMax("player") * 100 -- 自身血量百分比
 
-                if tempSkills["宠物攻击"] and dxjl <= 5 then
+                if tempSkills["宠物攻击"] and dxjl <= 30 then
                     SetSquareColor1(9)
                 end
                 if not isPlayerCasting("player") then--不在读条才进行下面的判断
                     if tempSkills["生命分流"] and zshp >30 and zsmp <30 and jn5 then
                         SetSquareColor1(5)
                         return
-                    elseif tempSkills["腐蚀术"] and zsmp >= 10 and dxjl <= 5 and not hasBuff(bufflist,"腐蚀术") and jn2 then 
+                    elseif tempSkills["腐蚀术"] and zsmp >= 10 and dxjl <= 30 and not hasBuff(bufflist,"腐蚀术") and jn2 then 
                         SetSquareColor1(2)
                         return
-                    elseif tempSkills["痛苦诅咒"] and zsmp >= 10 and dxjl <= 5 and not hasBuff(bufflist,"痛苦诅咒") and jn3 then 
+                    elseif tempSkills["痛苦诅咒"] and zsmp >= 10 and dxjl <= 30 and not hasBuff(bufflist,"痛苦诅咒") and jn3 then 
                         SetSquareColor1(3)
                         return
-                    elseif tempSkills["献祭"] and zsmp >= 10 and dxjl <= 5 and not hasBuff(bufflist,"献祭") and jn4 then 
+                    elseif tempSkills["献祭"] and zsmp >= 10 and dxjl <= 30 and not hasBuff(bufflist,"献祭") and jn4 then 
                         SetSquareColor1(4)
                         return
-                    elseif tempSkills["吸取生命"] and zsmp >= 10 and dxjl <= 5 and zshp < 30 and not hasBuff(bufflist,"吸取生命") and jn6 then 
+                    elseif tempSkills["吸取生命"] and zsmp >= 10 and dxjl <= 30 and zshp < 30 and not hasBuff(bufflist,"吸取生命") and jn6 then 
                         SetSquareColor1(5)
                         return
-                    elseif tempSkills["暗影箭"] and zsmp >= 10 and dxjl <= 5 and jn1 then 
+                    elseif tempSkills["暗影箭"] and zsmp >= 10 and dxjl <= 30 and jn1 then 
                         SetSquareColor1(1)
                         return
                     end
