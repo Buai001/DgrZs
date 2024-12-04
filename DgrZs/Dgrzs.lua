@@ -95,16 +95,31 @@ SlashCmdList["DGRZS"] = function(msg)
     end
 end
 
-local function JL(unit) -- 检测与对象的距离
-    if UnitExists(unit) then -- 检查目标是否存在
-        local distanceSquared = UnitDistanceSquared(unit)
-        if distanceSquared then
-            -- 计算正常的距离
-            local distance = math.sqrt(distanceSquared)
-            return distance
-        end
+-- 确保在插件的开头加载 LibStub
+local LibStub = LibStub or require("LibStub")
+-- 加载 LibRangeCheck-3.0
+local rc = LibStub("LibRangeCheck-3.0")
+
+local function JL(unit) -- 获取距离
+    local minRange, maxRange = rc:GetRange(unit)
+
+    if minRange == 0 and maxRange == 5 then
+        return 1
+    elseif minRange == 5 and maxRange == 10 then
+        return 2
+    elseif minRange == 10 and maxRange == 15 then
+        return 3
+    elseif minRange == 15 and maxRange == 20 then
+        return 4
+    elseif minRange == 20 and maxRange == 25 then
+        return 5
+    elseif minRange == 25 and maxRange == 30 then
+        return 6
+    elseif minRange == 30 and maxRange == 35 then
+        return 7
     end
-    return 0 -- 如果目标不存在或距离平方无效，返回 0
+    
+    return 0
 end
 local function isPlayerCasting(unit)--检测自身是否施法状态
     local casting = UnitCastingInfo(unit)
@@ -211,34 +226,34 @@ local function Gensui(gsjl) -- 判断是否跟随
         local yidong = GetUnitSpeed("player") > 0 and not IsMounted()
 
         -- 检查距离和移动状态
-        if (distance > 30 or distance < gsjl) and yidong then
-            SetSquareColor2(2)
-        elseif distance >= gsjl and distance <= 30 and not yidong then
-            SetSquareColor2(1)
+        if (distance ==0 or distance >= 5 or distance < gsjl) and yidong then
+            SetSquareColor2(2)--停止跟随
+        elseif distance > gsjl and distance < 5 and not yidong then
+            SetSquareColor2(1)--开始跟随
         else
-            SetSquareColor2(3)
+            SetSquareColor2(3)--透明
         end
     else
-        SetSquareColor2(3)
+        SetSquareColor2(3)--透明
     end
 end
 local function JCch() -- 检查是否需要吃喝
-    local player = "player" -- 注意这里应该是小写的 "player"
+    local player = "player"
     local jshp = UnitHealth(player) / UnitHealthMax(player) * 100 -- 血量百分比
     local jsmp = UnitPower(player) / UnitPowerMax(player) * 100 -- 蓝量百分比
     local bufflist = buff(player)
 
-    if jshp <= 30 and jsmp <= 30 and not hasBuff(bufflist, "饮水") and not hasBuff(bufflist, "喝水") and not hasBuff(bufflist, "进食") then
+    if jshp <= 30 and jsmp <= 30 and jshp > 1 and jsmp > 1 and not hasBuff(bufflist, "饮水") and not hasBuff(bufflist, "喝水") and not hasBuff(bufflist, "进食") then
         SetSquareColor(1)
         SetSquareColor1(18) -- 同时需要吃喝
         SetSquareColor2(3)
         return true
-    elseif jsmp <= 30 and (not hasBuff(bufflist, "饮水") and not hasBuff(bufflist, "喝水")) then
+    elseif jsmp <= 30 and jsmp > 1 and (not hasBuff(bufflist, "饮水") and not hasBuff(bufflist, "喝水")) then
         SetSquareColor(1)
         SetSquareColor1(17) -- 只需要喝
         SetSquareColor2(3)
         return true
-    elseif jshp <= 30 and not hasBuff(bufflist, "进食") then
+    elseif jshp <= 30 and jshp > 1 and not hasBuff(bufflist, "进食") then
         SetSquareColor(1)
         SetSquareColor1(16) -- 只需要吃
         SetSquareColor2(3)
@@ -291,7 +306,7 @@ local function NQ()--奶骑
     local zdhp = 100 -- 假设最大血量为100
     local dqdx = 1 -- 默认值
     if Isparty1InCombat() and IsInGroup() then --判断是否战斗中
-        Gensui(20)
+        Gensui(3)
         --队伍内 --对全队进行治疗
         local numMembers = GetNumGroupMembers()--队员数量
         for n = 1, numMembers do
@@ -301,11 +316,11 @@ local function NQ()--奶骑
             local jn2 = CD("纯净术") -- 冷却完毕
             local dxjl = JL(unit)
 
-           if (debuff == 1 or debuff == 2) and jn1 and dxjl <= 30 and tempSkills["清洁术"] then
+           if (debuff == 1 or debuff == 2) and jn1 and dxjl > 0 and dxjl <= 6 and tempSkills["清洁术"] then
                 SetSquareColor(n)
                 SetSquareColor1(9) -- 清洁术
                 return -- 找到需要驱散的目标后直接返回
-            elseif (debuff == 1 or debuff == 2) and jn2 and dxjl <= 30 and tempSkills["纯净术"] then
+            elseif (debuff == 1 or debuff == 2) and jn2 and dxjl > 0 and dxjl <= 6 and tempSkills["纯净术"] then
                 SetSquareColor(n)
                 SetSquareColor1(10) -- 纯净术
                 return -- 找到需要驱散的目标后直接返回
@@ -325,7 +340,7 @@ local function NQ()--奶骑
         local sf = isPlayerCasting("player") -- 是否在施法
         local dxjl = JL(unit) -- 目标在30码以内
 
-        if dxjl <= 30 and not sf then
+        if dxjl > 0 and dxjl <= 6 and not sf then
             -- 读取所有技能CD是否完毕
             local jn1 = CD("圣疗术")
             local jn2 = CD("圣光术")
@@ -363,7 +378,7 @@ local function NQ()--奶骑
         --脱战
         if IsInGroup() then--判断是否在队伍
             if not JCch() then--检查是否需要吃喝
-                Gensui(5)
+                Gensui(1)
             end
             --队伍内 --对全队检查buff
             local numMembers = GetNumGroupMembers()--队员数量
@@ -377,9 +392,9 @@ local function NQ()--奶骑
                 local dxjl = JL(unit) -- 目标在30码以内
 
                 local bufflist = buff(unit)
-                local hasStrengthBuff = tempSkills["力量祝福"] and jshp > 0 and jn1 and dxjl <= 30 and not hasBuff(bufflist, "力量祝福")
-                local hasWisdomBuff = tempSkills["智慧祝福"] and jshp > 0 and jn2 and dxjl <= 30 and not hasBuff(bufflist, "智慧祝福")
-                local hasKingsBuff = tempSkills["王者祝福"] and jshp > 0 and jn3 and dxjl <= 30 and not hasBuff(bufflist, "王者祝福")
+                local hasStrengthBuff = tempSkills["力量祝福"] and jshp > 0 and jn1 and dxjl > 0 and dxjl <= 6 and not hasBuff(bufflist, "力量祝福")
+                local hasWisdomBuff = tempSkills["智慧祝福"] and jshp > 0 and jn2 and dxjl > 0 and dxjl <= 6 and not hasBuff(bufflist, "智慧祝福")
+                local hasKingsBuff = tempSkills["王者祝福"] and jshp > 0 and jn3 and dxjl > 0 and dxjl <= 6 and not hasBuff(bufflist, "王者祝福")
 
                 if hasStrengthBuff then
                     SetSquareColor(n) -- 当前对象
@@ -406,7 +421,7 @@ local function MS()--牧师
     if Isparty1InCombat() then --判断是否战斗中
         --战斗中
         if IsInGroup() then--判断是否在队伍
-            Gensui(20)
+            Gensui(3)
             --队伍内 --对全队进行治疗
             local numMembers = GetNumGroupMembers()--队员数量
             for n = 1, numMembers do
@@ -415,7 +430,7 @@ local function MS()--牧师
                 local jn1 = CD("祛病术") -- 冷却完毕
                 local dxjl = JL(unit)
     
-                if debuff == 2 and jn1 and dxjl <= 30 then
+                if debuff == 2 and jn1 and dxjl > 0 and dxjl <= 6 then
                     SetSquareColor(n)
                     SetSquareColor1(11) -- 祛病术
                     return -- 找到需要驱散的目标后直接返回
@@ -440,7 +455,7 @@ local function MS()--牧师
             local sf = isPlayerCasting("player") -- 是否在施法
             local dxjl = JL(unit) -- 目标在30码以内
     
-            if dxjl <= 30 and not sf then
+            if dxjl > 0 and dxjl <= 6 and not sf then
                 -- 读取所有技能CD是否完毕
                 local jn3 = CD("强效治疗术")
                 local jn2 = CD("治疗术")
@@ -541,7 +556,7 @@ local function MS()--牧师
     else
         if IsInGroup() then--判断是否在队伍
             if not JCch() then--检查是否需要吃喝
-                Gensui(5)
+                Gensui(1)
             end
             --队伍内 --对全队检查buff
             local numMembers = GetNumGroupMembers()--队员数量
@@ -554,8 +569,8 @@ local function MS()--牧师
                 local dxjl = JL(unit) -- 目标在30码以内
 
                 local bufflist = buff(unit)
-                local hasStrengthBuff = tempSkills["真言术.韧"] and jshp > 0 and jn1 and dxjl <= 30 and not hasBuff(bufflist, "真言术：韧")
-                local hasWisdomBuff = tempSkills["神圣之灵"] and jshp > 0 and jn2 and dxjl <= 30 and not hasBuff(bufflist, "神圣之灵")
+                local hasStrengthBuff = tempSkills["真言术.韧"] and jshp > 0 and jn1 and dxjl > 0 and dxjl <= 6 and not hasBuff(bufflist, "真言术：韧")
+                local hasWisdomBuff = tempSkills["神圣之灵"] and jshp > 0 and jn2 and dxjl > 0 and dxjl <= 6 and not hasBuff(bufflist, "神圣之灵")
 
                 if hasStrengthBuff then
                     SetSquareColor(n) -- 当前对象
@@ -618,7 +633,7 @@ local function ND()--小德
     if Isparty1InCombat() then --判断是否战斗中
         --战斗中
         if IsInGroup() then--判断是否在队伍
-            Gensui(20)
+            Gensui(3)
             --队伍内 --对全队进行治疗
             local numMembers = GetNumGroupMembers()--队员数量
             for n = 1, numMembers do
@@ -628,11 +643,11 @@ local function ND()--小德
                 local jn2 = CD("解除诅咒") -- 冷却完毕
                 local dxjl = JL(unit)
     
-                if debuff == 1 and jn1 and dxjl <= 30 then
+                if debuff == 1 and jn1 and dxjl > 0 and dxjl <= 6 then
                     SetSquareColor(n)
                     SetSquareColor1(8) -- 消毒术
                     return -- 找到需要驱散的目标后直接返回
-                elseif debuff == 4 and jn2 and dxjl <= 30 then
+                elseif debuff == 4 and jn2 and dxjl > 0 and dxjl <= 6 then
                     SetSquareColor(n)
                     SetSquareColor1(9) -- 解除诅咒
                     return -- 找到需要驱散的目标后直接返回
@@ -657,7 +672,7 @@ local function ND()--小德
             local sf = isPlayerCasting("player") -- 是否在施法
             local dxjl = JL(unit) -- 目标在30码以内
 
-            if dxjl <= 30 and not sf then
+            if dxjl > 0 and dxjl <= 6 and not sf then
                 -- 读取所有技能CD是否完毕
                 local jn1 = CD("治疗之触")
                 local jn2 = CD("回春术")
@@ -699,7 +714,7 @@ local function ND()--小德
         --脱战
         if IsInGroup() then--判断是否在队伍
             if not JCch() then--检查是否需要吃喝
-                Gensui(5)
+                Gensui(1)
             end
             --队伍内 --对全队检查buff
             local numMembers = GetNumGroupMembers()--队员数量
@@ -712,8 +727,8 @@ local function ND()--小德
                 local dxjl = JL(unit) -- 目标在30码以内
 
                 local bufflist = buff(unit)
-                local hasStrengthBuff = tempSkills["野性印记"] and jshp > 0 and jn1 and dxjl <= 30 and not hasBuff(bufflist, "野性印记")
-                local hasWisdomBuff = tempSkills["荆棘术"] and jshp > 0 and jn2 and dxjl <= 30 and not hasBuff(bufflist, "荆棘术")
+                local hasStrengthBuff = tempSkills["野性印记"] and jshp > 0 and jn1 and dxjl > 0 and dxjl <= 6 and not hasBuff(bufflist, "野性印记")
+                local hasWisdomBuff = tempSkills["荆棘术"] and jshp > 0 and jn2 and dxjl > 0 and dxjl <= 6 and not hasBuff(bufflist, "荆棘术")
 
                 if hasStrengthBuff then
                     SetSquareColor(n) -- 当前对象
@@ -774,7 +789,7 @@ local function NS() -- 奶萨
     if Isparty1InCombat() then -- 判断是否战斗中
         -- 战斗中
         if IsInGroup() then -- 判断是否在队伍
-            Gensui(20)
+            Gensui(3)
             -- 队伍内 -- 对全队进行治疗
             local numMembers = GetNumGroupMembers() -- 队员数量
             for n = 1, numMembers do
@@ -784,11 +799,11 @@ local function NS() -- 奶萨
                 local jn2 = CD("祛病术") -- 冷却完毕
                 local dxjl = JL(unit)
 
-                if debuff == 1 and jn1 and dxjl <= 30 then
+                if debuff == 1 and jn1 and dxjl > 0 and dxjl <= 6 then
                     SetSquareColor(n)
                     SetSquareColor1(6) -- 消毒术
                     return -- 找到需要驱散的目标后直接返回
-                elseif debuff == 2 and jn2 and dxjl <= 30 then
+                elseif debuff == 2 and jn2 and dxjl > 0 and dxjl <= 6 then
                     SetSquareColor(n)
                     SetSquareColor1(7) -- 祛病术
                     return -- 找到需要驱散的目标后直接返回
@@ -813,7 +828,7 @@ local function NS() -- 奶萨
             local sf = isPlayerCasting("player") -- 是否在施法
             local dxjl = JL(unit) -- 目标在30码以内
 
-            if dxjl <= 30 and not sf then
+            if dxjl > 0 and dxjl <= 6 and not sf then
                 -- 读取所有技能CD是否完毕
                 local jn1 = CD("治疗波")
                 local jn2 = CD("次级治疗波")
@@ -855,7 +870,7 @@ local function NS() -- 奶萨
         -- 脱战
         if IsInGroup() then -- 判断是否在队伍
             if not JCch() then -- 检查是否需要吃喝
-                Gensui(5)
+                Gensui(1)
             end
         end
     end
@@ -868,7 +883,7 @@ local function SS()--术士
     if Isparty1InCombat() then --判断是否战斗中
         --战斗中
         if IsInGroup() then--判断是否在队伍
-            Gensui(20)
+            Gensui(3)
 
             if not JCMB() then--目标不同 需要协助
                 SetSquareColor(6)
@@ -885,26 +900,26 @@ local function SS()--术士
                 local zsmp = UnitPower("player") / UnitPowerMax("player") * 100 -- 自身蓝量百分比
                 local zshp = UnitHealth("player") / UnitHealthMax("player") * 100 -- 自身血量百分比
 
-                if tempSkills["宠物攻击"] and dxjl < 30 then
+                if tempSkills["宠物攻击"] and dxjl > 0 and dxjl <= 6 then
                     SetSquareColor1(9)
                 end
                 if not isPlayerCasting("player") then--不在读条才进行下面的判断
                     if tempSkills["生命分流"] and zshp >30 and zsmp <30 and jn5 then
                         SetSquareColor1(5)
                         return
-                    elseif tempSkills["腐蚀术"] and zsmp >= 10 and dxjl < 30 and not hasBuff(bufflist,"腐蚀术") and jn2 then 
+                    elseif tempSkills["腐蚀术"] and zsmp >= 10 and dxjl > 0 and dxjl <= 6 and not hasBuff(bufflist,"腐蚀术") and jn2 then 
                         SetSquareColor1(2)
                         return
-                    elseif tempSkills["痛苦诅咒"] and zsmp >= 10 and dxjl < 30 and not hasBuff(bufflist,"痛苦诅咒") and jn3 then 
+                    elseif tempSkills["痛苦诅咒"] and zsmp >= 10 and dxjl > 0 and dxjl <= 6 and not hasBuff(bufflist,"痛苦诅咒") and jn3 then 
                         SetSquareColor1(3)
                         return
-                    elseif tempSkills["献祭"] and zsmp >= 10 and dxjl < 30 and not hasBuff(bufflist,"献祭") and jn4 then 
+                    elseif tempSkills["献祭"] and zsmp >= 10 and dxjl > 0 and dxjl <= 6 and not hasBuff(bufflist,"献祭") and jn4 then 
                         SetSquareColor1(4)
                         return
-                    elseif tempSkills["吸取生命"] and zsmp >= 10 and dxjl < 30 and zshp < 30 and not hasBuff(bufflist,"吸取生命") and jn6 then 
+                    elseif tempSkills["吸取生命"] and zsmp >= 10 and dxjl > 0 and dxjl <= 6 and zshp < 30 and not hasBuff(bufflist,"吸取生命") and jn6 then 
                         SetSquareColor1(5)
                         return
-                    elseif tempSkills["暗影箭"] and zsmp >= 10 and dxjl < 30 and jn1 then 
+                    elseif tempSkills["暗影箭"] and zsmp >= 10 and dxjl > 0 and dxjl <= 6 and jn1 then 
                         SetSquareColor1(1)
                         return
                     end
@@ -916,7 +931,7 @@ local function SS()--术士
         if IsInGroup() then -- 判断是否在队伍
             if not isPlayerCasting("player") then--不在读条才进行下面的判断
                 if not JCch() then -- 检查是否需要吃喝
-                    Gensui(5)
+                    Gensui(1)
                 end
     
                 local bufflist = buff("player")

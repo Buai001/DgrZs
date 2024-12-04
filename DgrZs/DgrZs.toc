@@ -3,7 +3,9 @@
 ## Notes: 这是一款监控游戏队伍状态的插件
 ## Author: 不爱
 ## Version: 1.1
-## SavedVariables: DGRSV
+## OptionalDeps: LibRangeCheck-3.0
 
+libs\LibStub-1.0\LibStub.lua
+libs\LibRangeCheck-3.0\LibRangeCheck-3.0.lua
 Dgrzs.lua
 Dgrsz.lua
