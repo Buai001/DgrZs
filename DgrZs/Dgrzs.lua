@@ -214,19 +214,30 @@ local function Isparty1InCombat()--判断是否战斗状态
         return false
     end
 end
-local function Gensui() -- 判断是否跟随
+local function Gensui(gs) -- 判断是否跟随
     if UnitExists("party1") then
         local distance = DYJL("party1")
         local yidong = GetUnitSpeed("player") > 0 and not IsMounted()
 
         -- 检查距离和移动状态
-        if (distance > 20 or distance < 10) and yidong then
-            SetSquareColor2(2)--停止跟随
-        elseif distance >= 10 and distance <= 20 and not yidong then
-            SetSquareColor2(1)--开始跟随
-        else
-            SetSquareColor2(3)--透明
+        if gs == 1 then
+            if (distance > 30 or distance < 2) and yidong then
+                SetSquareColor2(2)--停止跟随
+            elseif distance >= 5 and distance <= 30 and not yidong then
+                SetSquareColor2(1)--开始跟随
+            else
+                SetSquareColor2(3)--透明
+            end
+        elseif gs == 2 then
+            if (distance > 30 or distance < 15) and yidong then
+                SetSquareColor2(2)--停止跟随
+            elseif distance >= 15 and distance <= 30 and not yidong then
+                SetSquareColor2(1)--开始跟随
+            else
+                SetSquareColor2(3)--透明
+            end
         end
+
     else
         SetSquareColor2(3)--透明
     end
@@ -300,7 +311,7 @@ local function NQ()--奶骑
     local zdhp = 100 -- 假设最大血量为100
     local dqdx = 1 -- 默认值
     if Isparty1InCombat() and IsInGroup() then --判断是否战斗中
-        Gensui()
+        Gensui(2)
         --队伍内 --对全队进行治疗
         local numMembers = GetNumGroupMembers()--队员数量
         for n = 1, numMembers do
@@ -372,7 +383,7 @@ local function NQ()--奶骑
         --脱战
         if IsInGroup() then--判断是否在队伍
             if not JCch() then--检查是否需要吃喝
-                Gensui()
+                Gensui(1)
             end
             --队伍内 --对全队检查buff
             local numMembers = GetNumGroupMembers()--队员数量
@@ -415,7 +426,7 @@ local function MS()--牧师
     if Isparty1InCombat() then --判断是否战斗中
         --战斗中
         if IsInGroup() then--判断是否在队伍
-            Gensui()
+            Gensui(2)
             --队伍内 --对全队进行治疗
             local numMembers = GetNumGroupMembers()--队员数量
             for n = 1, numMembers do
@@ -550,7 +561,7 @@ local function MS()--牧师
     else
         if IsInGroup() then--判断是否在队伍
             if not JCch() then--检查是否需要吃喝
-                Gensui()
+                Gensui(1)
             end
             --队伍内 --对全队检查buff
             local numMembers = GetNumGroupMembers()--队员数量
@@ -627,7 +638,7 @@ local function ND()--小德
     if Isparty1InCombat() then --判断是否战斗中
         --战斗中
         if IsInGroup() then--判断是否在队伍
-            Gensui()
+            Gensui(2)
             --队伍内 --对全队进行治疗
             local numMembers = GetNumGroupMembers()--队员数量
             for n = 1, numMembers do
@@ -708,7 +719,7 @@ local function ND()--小德
         --脱战
         if IsInGroup() then--判断是否在队伍
             if not JCch() then--检查是否需要吃喝
-                Gensui()
+                Gensui(1)
             end
             --队伍内 --对全队检查buff
             local numMembers = GetNumGroupMembers()--队员数量
@@ -783,7 +794,7 @@ local function NS() -- 奶萨
     if Isparty1InCombat() then -- 判断是否战斗中
         -- 战斗中
         if IsInGroup() then -- 判断是否在队伍
-            Gensui()
+            Gensui(2)
             -- 队伍内 -- 对全队进行治疗
             local numMembers = GetNumGroupMembers() -- 队员数量
             for n = 1, numMembers do
@@ -866,7 +877,7 @@ local function NS() -- 奶萨
         -- 脱战
         if IsInGroup() then -- 判断是否在队伍
             if not JCch() then -- 检查是否需要吃喝
-                Gensui()
+                Gensui(1)
             end
         end
     end
@@ -879,7 +890,7 @@ local function SS()--术士
     if Isparty1InCombat() then --判断是否战斗中
         --战斗中
         if IsInGroup() then--判断是否在队伍
-            Gensui()
+            Gensui(2)
 
             if not JCMB() then--目标不同 需要协助
                 SetSquareColor(6)
@@ -927,7 +938,7 @@ local function SS()--术士
         if IsInGroup() then -- 判断是否在队伍
             if not isPlayerCasting("player") then--不在读条才进行下面的判断
                 if not JCch() then -- 检查是否需要吃喝
-                    Gensui()
+                    Gensui(1)
                 end
     
                 local bufflist = buff("player")
