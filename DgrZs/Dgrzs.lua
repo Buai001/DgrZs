@@ -102,7 +102,7 @@ local rc = LibStub("LibRangeCheck-3.0")
 
 local function DFJL(unit) -- 获取距离
     local minRange, maxRange = rc:GetRange(unit)
-    return maxRange
+    return minRange, maxRange
 end
 local function DYJL(unit) -- 检测与对象的距离
     if UnitExists(unit) then -- 检查目标是否存在
@@ -973,6 +973,24 @@ local function SS()--术士
             end
         end
     end
+end
+local function GetAggroMonstersInCombatCount()
+    local aggroCount = 0
+    local nameplates = C_NamePlate.GetNamePlates() -- 获取当前显示的姓名板
+
+    if nameplates then
+        for _, nameplate in ipairs(nameplates) do
+            local unitID = nameplate.namePlateUnitToken -- 获取单位ID
+            if unitID and UnitExists(unitID) then
+                -- 检查单位是否是敌对单位并且在战斗中
+                if UnitCanAttack("player", unitID) and UnitAffectingCombat(unitID) then
+                    aggroCount = aggroCount + 1
+                end
+            end
+        end
+    end
+
+    return aggroCount
 end
 
 DgrzsFrame:SetScript("OnUpdate", function ()
